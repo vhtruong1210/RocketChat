@@ -420,7 +420,7 @@ RocketChat.models.Messages = new class extends RocketChat.models._Base {
 		} else {
 			update = {
 				$pull: {
-					starred: { _id: Meteor.userId() }
+					starred: { _id: userId }
 				}
 			};
 		}

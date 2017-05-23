@@ -23,5 +23,14 @@ Template.accountFlex.helpers({
 	},
 	allowUserAvatarChange() {
 		return RocketChat.settings.get('Accounts_AllowUserAvatarChange');
+	},
+	slackBridgeEnabled() {
+		return RocketChat.settings.get('SlackBridge_Enabled') &&
+			RocketChat.settings.get('SlackBridge_Event_API_Enabled') &&
+			RocketChat.settings.get('SlackBridge_Client_ID') &&
+			RocketChat.settings.get('SlackBridge_Client_Secret') &&
+			RocketChat.settings.get('SlackBridge_OAuth_Scopes') &&
+			RocketChat.settings.get('SlackBridge_OAuth_Redirect_Url') &&
+			RocketChat.settings.get('SlackBridge_Verification_Token');
 	}
 });
