@@ -25,10 +25,10 @@ class MainContent extends Page {
 
 	// Messages
 	get lastMessageUser() { return browser.element('.message:last-child .user-card-message:nth-of-type(2)'); }
-	get lastMessage() { return browser.element('.message:last-child .body'); }
-	get lastMessageDesc() { return browser.element('.message:last-child .body .attachment-description'); }
-	get lastMessageRoleAdded() { return browser.element('.message:last-child.subscription-role-added .body'); }
-	get beforeLastMessage() { return browser.element('.message:nth-last-child(2) .body'); }
+	get lastMessage() { return browser.element('.message:last-child .markdown-body'); }
+	get lastMessageDesc() { return browser.element('.message:last-child .markdown-body .attachment-description'); }
+	get lastMessageRoleAdded() { return browser.element('.message:last-child.subscription-role-added .markdown-body'); }
+	get beforeLastMessage() { return browser.element('.message:nth-last-child(2) .markdown-body'); }
 	get lastMessageUserTag() { return browser.element('.message:last-child .role-tag'); }
 	get lastMessageImg() { return browser.element('.message:last-child .attachment-image img'); }
 	get lastMessageTextAttachment() { return browser.element('.message:last-child .attachment-text'); }
@@ -73,8 +73,8 @@ class MainContent extends Page {
 		this.setTextToInput(text);
 		this.sendBtn.click();
 		browser.waitUntil(function() {
-			browser.waitForVisible('.message:last-child .body', 5000);
-			return browser.getText('.message:last-child .body') === text;
+			browser.waitForVisible('.message:last-child .markdown-body', 5000);
+			return browser.getText('.message:last-child .markdown-body') === text;
 		}, 5000);
 	}
 
@@ -98,8 +98,8 @@ class MainContent extends Page {
 
 	waitForLastMessageEqualsText(text) {
 		browser.waitUntil(function() {
-			browser.waitForVisible('.message:last-child .body', 5000);
-			return browser.getText('.message:last-child .body') === text;
+			browser.waitForVisible('.message:last-child .markdown-body', 5000);
+			return browser.getText('.message:last-child .markdown-body') === text;
 		}, 5000);
 	}
 
