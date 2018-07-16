@@ -7,11 +7,15 @@ RocketChat.getFullUserData = function({userId, filter, limit}) {
 		name: 1,
 		username: 1,
 		status: 1,
-		utcOffset: 1,
 		type: 1,
 		active: 1,
 		reason: 1
 	};
+
+	fields['emails'] = RocketChat.authz.hasPermission(userId, 'view-other-user-emails') ? 1 : 0;
+	fields['phone'] = RocketChat.authz.hasPermission(userId, 'view-other-user-phone') ? 1 : 0;
+	fields['roles'] = RocketChat.authz.hasPermission(userId, 'view-other-user-roles') ? 1 : 0;
+	fields['utcOffset'] = RocketChat.authz.hasPermission(userId, 'view-other-user-utcoffset') ? 1 : 0;
 
 	if (RocketChat.authz.hasPermission(userId, 'view-full-other-user-info')) {
 		fields = _.extend(fields, {
