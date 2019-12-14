@@ -41,6 +41,10 @@ function generateStatistics() {
 	}
 }
 
+function generateUserStatistics() {
+	statistics.saveUsersInfo();
+}
+
 function cleanupOEmbedCache() {
 	return Meteor.call('OEmbedCacheCleanup');
 }
@@ -52,9 +56,17 @@ Meteor.startup(function() {
 		SyncedCron.add({
 			name: 'Generate and save statistics',
 			schedule(parser) {
-				return parser.cron(`${ new Date().getMinutes() } * * * *`);
+				return parser.cron('3 3 * * *');
 			},
 			job: generateStatistics,
+		});
+
+		SyncedCron.add({
+			name: 'Count online users for statistics',
+			schedule(parser) {
+				return parser.cron('*/10 * * * *');
+			},
+			job: generateUserStatistics,
 		});
 
 		SyncedCron.add({
