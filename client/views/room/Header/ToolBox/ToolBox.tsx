@@ -21,7 +21,7 @@ type ToolBoxProps = {
 	room?: IRoom;
 };
 
-const ToolBox: FC<ToolBoxProps> = ({ className }) => {
+const ToolBox: FC<ToolBoxProps> = ({ className, room }) => {
 	const tab = useTab();
 	const openTabBar = useTabBarOpen();
 	const { isMobile } = useLayout();
@@ -30,9 +30,19 @@ const ToolBox: FC<ToolBoxProps> = ({ className }) => {
 
 	const { actions: mapActions } = useToolboxContext();
 
-	const actions = (Array.from(mapActions.values()) as ToolboxActionConfig[]).sort(
+	let actions = (Array.from(mapActions.values()) as ToolboxActionConfig[]).sort(
 		(a, b) => (a.order || 0) - (b.order || 0),
 	);
+
+	/*
+	 * TO-DO: check this room.voice test improve with more details before merge
+	 */
+
+	if (room && room.voice) {
+		// TODO: use action.groups
+		actions = actions.filter(({ id }) => id === 'channel-settings' || id === 'members-list');
+	}
+
 	const visibleActions = isMobile ? [] : actions.slice(0, 6);
 
 	const hiddenActions: MenuProps['options'] = Object.fromEntries(

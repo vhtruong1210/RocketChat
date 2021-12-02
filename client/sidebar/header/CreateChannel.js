@@ -24,6 +24,7 @@ const CreateChannel = ({
 	onChangeUsers,
 	onChangeType,
 	onChangeBroadcast,
+	onChangeVoice,
 	canOnlyCreateOneType,
 	e2eEnabledForPrivateByDefault,
 	onCreate,
@@ -64,7 +65,7 @@ const CreateChannel = ({
 		checkName(values.name);
 	}, [checkName, values.name]);
 
-	const e2edisabled = useMemo(
+	const e2eDisabled = useMemo(
 		() => !values.type || values.broadcast || !e2eEnabled || e2eEnabledForPrivateByDefault,
 		[e2eEnabled, e2eEnabledForPrivateByDefault, values.broadcast, values.type],
 	);
@@ -93,7 +94,7 @@ const CreateChannel = ({
 					</Field>
 					<Field>
 						<Field.Label>
-							{t('Topic')}{' '}
+							{t('Topic')}
 							<Box is='span' color='neutral-600'>
 								({t('optional')})
 							</Box>
@@ -122,47 +123,62 @@ const CreateChannel = ({
 							/>
 						</Box>
 					</Field>
-					<Field>
+					<Field mbe='x24'>
 						<Box display='flex' justifyContent='space-between' alignItems='start'>
-							<Box display='flex' flexDirection='column' width='full'>
-								<Field.Label>{t('Read_only')}</Field.Label>
-								<Field.Description>
-									{values.readOnly
-										? t('Only_authorized_users_can_write_new_messages')
-										: t('All_users_in_the_channel_can_write_new_messages')}
-								</Field.Description>
+							<Box display='flex' flexDirection='column'>
+								<Field.Label>{t('Voice')}</Field.Label>
+								<Field.Description>{t('Voice_channel_Description')}</Field.Description>
 							</Box>
-							<ToggleSwitch
-								checked={values.readOnly}
-								disabled={values.broadcast}
-								onChange={handlers.handleReadOnly}
-							/>
+							<ToggleSwitch checked={values.voice} onChange={onChangeVoice} />
 						</Box>
 					</Field>
-					<Field>
-						<Box display='flex' justifyContent='space-between' alignItems='start'>
-							<Box display='flex' flexDirection='column' width='full'>
-								<Field.Label>{t('Encrypted')}</Field.Label>
-								<Field.Description>
-									{values.type ? t('Encrypted_channel_Description') : t('Encrypted_not_available')}
-								</Field.Description>
-							</Box>
-							<ToggleSwitch
-								checked={values.encrypted}
-								disabled={e2edisabled}
-								onChange={handlers.handleEncrypted}
-							/>
-						</Box>
-					</Field>
-					<Field>
-						<Box display='flex' justifyContent='space-between' alignItems='start'>
-							<Box display='flex' flexDirection='column' width='full'>
-								<Field.Label>{t('Broadcast')}</Field.Label>
-								<Field.Description>{t('Broadcast_channel_Description')}</Field.Description>
-							</Box>
-							<ToggleSwitch checked={values.broadcast} onChange={onChangeBroadcast} />
-						</Box>
-					</Field>
+					{!values.voice && (
+						<>
+							<Field>
+								<Box display='flex' justifyContent='space-between' alignItems='start'>
+									<Box display='flex' flexDirection='column' width='full'>
+										<Field.Label>{t('Read_only')}</Field.Label>
+										<Field.Description>
+											{values.readOnly
+												? t('Only_authorized_users_can_write_new_messages')
+												: t('All_users_in_the_channel_can_write_new_messages')}
+										</Field.Description>
+									</Box>
+									<ToggleSwitch
+										checked={values.readOnly}
+										disabled={values.broadcast}
+										onChange={handlers.handleReadOnly}
+									/>
+								</Box>
+							</Field>
+							<Field>
+								<Box display='flex' justifyContent='space-between' alignItems='start'>
+									<Box display='flex' flexDirection='column' width='full'>
+										<Field.Label>{t('Encrypted')}</Field.Label>
+										<Field.Description>
+											{values.type
+												? t('Encrypted_channel_Description')
+												: t('Encrypted_not_available')}
+										</Field.Description>
+									</Box>
+									<ToggleSwitch
+										checked={values.encrypted}
+										disabled={e2eDisabled}
+										onChange={handlers.handleEncrypted}
+									/>
+								</Box>
+							</Field>
+							<Field>
+								<Box display='flex' justifyContent='space-between' alignItems='start'>
+									<Box display='flex' flexDirection='column' width='full'>
+										<Field.Label>{t('Broadcast')}</Field.Label>
+										<Field.Description>{t('Broadcast_channel_Description')}</Field.Description>
+									</Box>
+									<ToggleSwitch checked={values.broadcast} onChange={onChangeBroadcast} />
+								</Box>
+							</Field>
+						</>
+					)}
 					<Field>
 						<Field.Label>{`${t('Add_members')} (${t('optional')})`}</Field.Label>
 						<UserAutoCompleteMultiple value={values.users} onChange={onChangeUsers} />
