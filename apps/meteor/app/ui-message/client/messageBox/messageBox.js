@@ -12,7 +12,7 @@ import { formattingButtons, applyFormatting } from './messageBoxFormatting';
 import { EmojiPicker } from '../../../emoji';
 import { Users, ChatRoom } from '../../../models/client';
 import { settings } from '../../../settings';
-import { fileUpload, KonchatNotification } from '../../../ui';
+import { fileUpload } from '../../../ui';
 import { messageBox, popover } from '../../../ui-utils';
 import { t, getUserPreference } from '../../../utils/client';
 import './messageBoxActions';
@@ -355,9 +355,6 @@ Template.messageBox.events({
 			input.selectionStart = caretPos + emojiValue.length;
 			input.selectionEnd = caretPos + emojiValue.length;
 		});
-	},
-	'focus .js-input-message'() {
-		KonchatNotification.removeRoomNotification(this.rid);
 	},
 	'keydown .js-input-message'(event, instance) {
 		const isEventHandled = handleFormattingShortcut(event, instance) || handleSubmit(event, instance);
