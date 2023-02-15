@@ -16,11 +16,15 @@ import {
 import type { ReactElement } from 'react';
 import React, { memo, useMemo } from 'react';
 
-import { RoomManager } from '../../app/ui-utils/client';
+import { applyButtonFilters } from '../../app/ui-message/client/actionButtons/lib/applyButtonFilters';
+import { RoomManager } from '../../app/ui-utils/client/lib/RoomManager';
+import type { ISidebarButton } from '../../app/ui-utils/client/lib/SidebarRoomAction';
+import { SidebarRoomAction } from '../../app/ui-utils/client/lib/SidebarRoomAction';
 import { UiTextContext } from '../../definition/IRoomTypeConfig';
 import { GenericModalDoNotAskAgain } from '../components/GenericModal';
 import WarningModal from '../components/WarningModal';
 import { useDontAskAgain } from '../hooks/useDontAskAgain';
+import { useRoomInfoEndpoint } from '../hooks/useRoomInfoEndpoint';
 import { roomCoordinator } from '../lib/rooms/roomCoordinator';
 
 const fields: Fields = {
@@ -183,6 +187,22 @@ const RoomMenu = ({ rid, unread, threadUnread, alert, roomOpen, type, cl, name =
 		}
 	});
 
+	const { data, isLoading, isError } = useRoomInfoEndpoint(rid);
+
+	const appsButtons = useMemo(
+		() =>
+			!isLoading &&
+			!isError &&
+			SidebarRoomAction.actions
+				.getCurrentValue()
+				.filter((action) => applyButtonFilters(action, data?.room))
+				.reduce((result, item) => {
+					result[item.actionId] = item.sidebarActionButton;
+					return result;
+				}, {} as Record<string, ISidebarButton>),
+		[data, isError, isLoading],
+	);
+
 	const menuOptions = useMemo(
 		() => ({
 			hideRoom: {
@@ -210,8 +230,9 @@ const RoomMenu = ({ rid, unread, threadUnread, alert, roomOpen, type, cl, name =
 					action: handleLeave,
 				},
 			}),
+			...appsButtons,
 		}),
-		[t, handleHide, isUnread, handleToggleRead, canFavorite, isFavorite, handleToggleFavorite, canLeave, handleLeave],
+		[appsButtons, t, handleHide, isUnread, handleToggleRead, canFavorite, isFavorite, handleToggleFavorite, canLeave, handleLeave],
 	);
 
 	return (
