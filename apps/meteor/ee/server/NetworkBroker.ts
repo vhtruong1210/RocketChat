@@ -70,16 +70,21 @@ export class NetworkBroker implements IBroker {
 		return this.broker.call(method, data);
 	}
 
-	destroyService(instance: IServiceClass): void {
+	async destroyService(instance: IServiceClass): Promise<void> {
 		const name = instance.getName();
 		if (!name) {
 			return;
 		}
-		void this.broker.destroyService(name);
-		instance.removeAllListeners();
+		const service = this.broker.getLocalService(name);
+		if (service) {
+			await this.broker.destroyService(name);
+			void instance.stopped();
+			instance.removeAllListeners();
+		}
 	}
 
 	createService(instance: IServiceClass, serviceDependencies?: string[]): void {
+		// TODO: get only publicly available methods removing all private methods
 		const methods = (
 			instance.constructor?.name === 'Object'
 				? Object.getOwnPropertyNames(instance)
@@ -156,8 +161,10 @@ export class NetworkBroker implements IBroker {
 				);
 			};
 		}
-
-		this.broker.createService(service);
+		if (!this.broker.getLocalService(name)) {
+			this.broker.createService(service);
+			void instance.created();
+		}
 	}
 
 	async broadcast<T extends keyof EventSignatures>(event: T, ...args: Parameters<EventSignatures[T]>): Promise<void> {

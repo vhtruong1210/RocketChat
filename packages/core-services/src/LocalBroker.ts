@@ -32,9 +32,10 @@ export class LocalBroker implements IBroker {
 		return this.call(method, data);
 	}
 
-	destroyService(instance: ServiceClass): void {
+	async destroyService(instance: ServiceClass): Promise<void> {
 		const namespace = instance.getName();
 
+		// TODO: get only publicly available methods removing all private methods
 		instance.getEvents().forEach((event) => event.listeners.forEach((listener) => this.events.removeListener(event.eventName, listener)));
 
 		const methods =
