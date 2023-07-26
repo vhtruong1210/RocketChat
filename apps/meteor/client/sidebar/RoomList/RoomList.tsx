@@ -1,8 +1,9 @@
-import type { IRoom } from '@rocket.chat/core-typings';
+import type { IRoom, ISubscription } from '@rocket.chat/core-typings';
 import { css } from '@rocket.chat/css-in-js';
 import { Box } from '@rocket.chat/fuselage';
 import { useResizeObserver } from '@rocket.chat/fuselage-hooks';
-import { useUserPreference, useUserId, useTranslation } from '@rocket.chat/ui-contexts';
+import type { SubscriptionWithRoom } from '@rocket.chat/ui-contexts';
+import { useUserPreference, useTranslation, useUserId } from '@rocket.chat/ui-contexts';
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import { Virtuoso } from 'react-virtuoso';
@@ -18,10 +19,10 @@ import ScrollerWithCustomProps from './ScrollerWithCustomProps';
 
 const computeItemKey = (index: number, room: IRoom): IRoom['_id'] | number => room._id || index;
 
-const RoomList = (): ReactElement => {
+const RoomList = ({ subscriptions }: { subscriptions: SubscriptionWithRoom[] }): ReactElement => {
 	const t = useTranslation();
 	const isAnonymous = !useUserId();
-	const roomsList = useRoomList();
+	const roomsList = useRoomList(subscriptions);
 	const avatarTemplate = useAvatarTemplate();
 	const sideBarItemTemplate = useTemplateByViewMode();
 	const { ref } = useResizeObserver({ debounceDelay: 100 });
@@ -120,7 +121,7 @@ const RoomList = (): ReactElement => {
 			<Box h='full' w='full' ref={ref}>
 				<Virtuoso
 					totalCount={roomsList.length}
-					data={roomsList}
+					data={roomsList as unknown as (ISubscription & IRoom)[]}
 					components={{ Scroller: ScrollerWithCustomProps }}
 					computeItemKey={computeItemKey}
 					itemContent={(_, data): ReactElement => <RoomListRow data={itemData} item={data} />}
