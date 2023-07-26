@@ -23,6 +23,7 @@ import {
 	isDirectVideoConference,
 	isGroupVideoConference,
 	isLivechatVideoConference,
+	isRoomFederated,
 } from '@rocket.chat/core-typings';
 import type { MessageSurfaceLayout } from '@rocket.chat/ui-kit';
 import type { AppVideoConfProviderManager } from '@rocket.chat/apps-engine/server/managers';
@@ -482,16 +483,16 @@ export class VideoConfService extends ServiceClassInternal implements IVideoConf
 	}
 
 	private async createMessage(call: VideoConference, createdBy?: IUser, customBlocks?: IMessage['blocks']): Promise<IMessage['_id']> {
-		const record = {
-			t: 'videoconf',
-			msg: '',
-			groupable: false,
-			blocks: customBlocks || [this.buildVideoConfBlock(call._id)],
-		};
-
 		const room = await Rooms.findOneById(call.rid);
 		const appId = videoConfProviders.getProviderAppId(call.providerName);
 		const user = createdBy || (appId && (await Users.findOneByAppId(appId))) || (await Users.findOneById('rocket.cat'));
+
+		const record = {
+			t: 'videoconf',
+			msg: isRoomFederated(room as IRoom) ? await this.getUrl(call) : '',
+			groupable: false,
+			blocks: customBlocks || [this.buildVideoConfBlock(call._id)],
+		};
 
 		const message = await sendMessage(user, record, room, false);
 		return message._id;
