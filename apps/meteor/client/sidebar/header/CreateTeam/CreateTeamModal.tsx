@@ -25,7 +25,7 @@ import type { ComponentProps, ReactElement } from 'react';
 import React, { memo, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
-import UserAutoCompleteMultiple from '../../../components/UserAutoCompleteMultiple';
+import UserAutoCompleteMultipleFederated from '../../../components/UserAutoCompleteMultiple/UserAutoCompleteMultipleFederated';
 import { goToRoomById } from '../../../lib/utils/goToRoomById';
 
 type CreateTeamModalInputs = {
@@ -35,7 +35,7 @@ type CreateTeamModalInputs = {
 	readOnly: boolean;
 	encrypted: boolean;
 	broadcast: boolean;
-	members?: string[];
+	members: string[];
 };
 
 const CreateTeamModal = ({ onClose }: { onClose: () => void }): ReactElement => {
@@ -296,7 +296,9 @@ const CreateTeamModal = ({ onClose }: { onClose: () => void }): ReactElement => 
 						<Controller
 							control={control}
 							name='members'
-							render={({ field: { onChange, value } }): ReactElement => <UserAutoCompleteMultiple value={value} onChange={onChange} />}
+							render={({ field: { onChange, value } }): ReactElement => (
+								<UserAutoCompleteMultipleFederated value={value} onChange={onChange} />
+							)}
 						/>
 					</Field>
 				</FieldGroup>
