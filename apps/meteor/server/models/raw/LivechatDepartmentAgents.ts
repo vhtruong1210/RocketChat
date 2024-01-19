@@ -208,21 +208,21 @@ export class LivechatDepartmentAgentsRaw extends BaseRaw<ILivechatDepartmentAgen
 			return;
 		}
 
-		const onlineUsers = await Users.findOnlineUserFromList(
+		// get fully booked agents, to ignore them from the query
+		const currentUnavailableAgents = (await Users.getUnavailableAgents(departmentId, extraQuery)).map((u) => u.username);
+
+		const onlineUsers = await Users.findOnlineUsersFromListExcludingUsernames(
 			agents.map((agent) => agent.username),
+			currentUnavailableAgents,
 			isLivechatEnabledWhenAgentIdle,
 		).toArray();
 
 		const onlineUsernames = onlineUsers.map((user) => user.username).filter(isStringValue);
 
-		// get fully booked agents, to ignore them from the query
-		const currentUnavailableAgents = (await Users.getUnavailableAgents(departmentId, extraQuery)).map((u) => u.username);
-
 		const query: Filter<ILivechatDepartmentAgents> = {
 			departmentId,
 			username: {
 				$in: onlineUsernames,
-				$nin: currentUnavailableAgents,
 			},
 			...(ignoreAgentId && { agentId: { $ne: ignoreAgentId } }),
 		};
@@ -285,6 +285,19 @@ export class LivechatDepartmentAgentsRaw extends BaseRaw<ILivechatDepartmentAgen
 		};
 
 		return this.find(query);
+	}
+
+	async countOnlineForDepartment(departmentId: string, isLivechatEnabledWhenAgentIdle?: boolean): Promise<number> {
+		const agents = await this.findByDepartmentId(departmentId).toArray();
+
+		if (agents.length === 0) {
+			return 0;
+		}
+
+		return Users.countOnlineAgentsFromList(
+			agents.map((a) => a.username),
+			isLivechatEnabledWhenAgentIdle,
+		);
 	}
 
 	async getBotsForDepartment(departmentId: string): Promise<undefined | FindCursor<ILivechatDepartmentAgents>> {

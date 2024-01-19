@@ -60,18 +60,6 @@ export const createLivechatRoom = async (
 	roomInfo: Partial<IOmnichannelRoom> = {},
 	extraData = {},
 ) => {
-	check(rid, String);
-	check(name, String);
-	check(
-		guest,
-		Match.ObjectIncluding({
-			_id: String,
-			username: String,
-			status: Match.Maybe(String),
-			department: Match.Maybe(String),
-		}),
-	);
-
 	const extraRoomInfo = await callbacks.run('livechat.beforeRoom', roomInfo, extraData);
 	const { _id, username, token, department: departmentId, status = 'online' } = guest;
 	const newRoomAt = new Date();
@@ -117,11 +105,10 @@ export const createLivechatRoom = async (
 	);
 
 	const roomId = (await Rooms.insertOne(room)).insertedId;
+	await sendMessage(guest, { t: 'livechat-started', msg: '', groupable: false }, room);
 
 	void Apps.triggerEvent(AppEvents.IPostLivechatRoomStarted, room);
-	await callbacks.run('livechat.newRoom', room);
-
-	await sendMessage(guest, { t: 'livechat-started', msg: '', groupable: false }, room);
+	void callbacks.run('livechat.newRoom', room);
 
 	return roomId;
 };
@@ -135,32 +122,17 @@ export const createLivechatInquiry = async ({
 	extraData,
 }: {
 	rid: string;
-	name?: string;
+	name: string;
 	guest?: Pick<ILivechatVisitor, '_id' | 'username' | 'status' | 'department' | 'name' | 'token' | 'activity'>;
 	message?: Pick<IMessage, 'msg'>;
 	initialStatus?: LivechatInquiryStatus;
 	extraData?: Pick<ILivechatInquiryRecord, 'source'>;
 }) => {
-	check(rid, String);
-	check(name, String);
-	check(
-		guest,
-		Match.ObjectIncluding({
-			_id: String,
-			username: String,
-			status: Match.Maybe(String),
-			department: Match.Maybe(String),
-			activity: Match.Maybe([String]),
-		}),
-	);
-	check(
-		message,
-		Match.ObjectIncluding({
-			msg: String,
-		}),
-	);
-
 	const extraInquiryInfo = await callbacks.run('livechat.beforeInquiry', extraData);
+
+	if (!guest || !message) {
+		throw new Meteor.Error('error-invalid-params');
+	}
 
 	const { _id, username, token, department, status = UserStatus.ONLINE, activity } = guest;
 	const { msg } = message;
@@ -193,7 +165,6 @@ export const createLivechatInquiry = async ({
 	};
 
 	const result = (await LivechatInquiry.insertOne(inquiry)).insertedId;
-	logger.debug(`Inquiry ${result} created for visitor ${_id}`);
 
 	return result;
 };
@@ -338,7 +309,6 @@ export const dispatchInquiryQueued = async (inquiry: ILivechatInquiryRecord, age
 	if (!inquiry?._id) {
 		return;
 	}
-	logger.debug(`Notifying agents of new inquiry ${inquiry._id} queued`);
 
 	const { department, rid, v } = inquiry;
 	const room = await LivechatRooms.findOneById(rid);
@@ -358,12 +328,12 @@ export const dispatchInquiryQueued = async (inquiry: ILivechatInquiryRecord, age
 
 	// Alert only the online agents of the queued request
 	const onlineAgents = await LivechatTyped.getOnlineAgents(department, agent);
-	if (!onlineAgents) {
+	const total = await onlineAgents?.count();
+	if (!onlineAgents || !total) {
 		logger.debug('Cannot notify agents of queued inquiry. No online agents found');
 		return;
 	}
 
-	logger.debug(`Notifying ${await onlineAgents.count()} agents of new inquiry`);
 	const notificationUserName = v && (v.name || v.username);
 
 	for await (const agent of onlineAgents) {
@@ -436,7 +406,7 @@ export const forwardRoomToAgent = async (room: IOmnichannelRoom, transferData: T
 	// There are some Enterprise features that may interrupt the forwarding process
 	// Due to that we need to check whether the agent has been changed or not
 	logger.debug(`Forwarding inquiry ${inquiry._id} to agent ${agent.agentId}`);
-	const roomTaken = await RoutingManager.takeInquiry(inquiry, agent, {
+	const roomTaken = await RoutingManager.takeInquiry(inquiry, agent, room, {
 		...(clientAction && { clientAction }),
 	});
 	if (!roomTaken) {
@@ -549,7 +519,7 @@ export const forwardRoomToDepartment = async (room: IOmnichannelRoom, guest: ILi
 	// Fake the department to forward the inquiry - Case the forward process does not success
 	// the inquiry will stay in the same original department
 	inquiry.department = departmentId;
-	const roomTaken = await RoutingManager.delegateInquiry(inquiry, agent, {
+	const roomTaken = await RoutingManager.delegateInquiry(inquiry, agent, room, {
 		forwardingToDepartment: { oldDepartmentId },
 		...(clientAction && { clientAction }),
 	});
@@ -591,16 +561,16 @@ export const forwardRoomToDepartment = async (room: IOmnichannelRoom, guest: ILi
 
 	if (chatQueued) {
 		logger.debug(`Forwarding succesful. Marking inquiry ${inquiry._id} as ready`);
-		await LivechatInquiry.readyInquiry(inquiry._id);
-		await LivechatRooms.removeAgentByRoomId(rid);
-		await dispatchAgentDelegated(rid);
+		await Promise.all([LivechatInquiry.readyInquiry(inquiry._id), LivechatRooms.removeAgentByRoomId(rid)]);
+		void dispatchAgentDelegated(rid);
+
 		const newInquiry = await LivechatInquiry.findOneById(inquiry._id);
 		if (!newInquiry) {
 			logger.debug(`Inquiry ${inquiry._id} not found`);
 			throw new Error('error-invalid-inquiry');
 		}
 
-		await queueInquiry(newInquiry);
+		await queueInquiry(newInquiry, room);
 		logger.debug(`Inquiry ${inquiry._id} queued succesfully`);
 	}
 

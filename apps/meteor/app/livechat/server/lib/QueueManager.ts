@@ -1,7 +1,7 @@
 import { Omnichannel } from '@rocket.chat/core-services';
 import type { ILivechatInquiryRecord, ILivechatVisitor, IMessage, IOmnichannelRoom, SelectedAgent } from '@rocket.chat/core-typings';
 import { Logger } from '@rocket.chat/logger';
-import { LivechatInquiry, LivechatRooms, Users } from '@rocket.chat/models';
+import { LivechatInquiry, LivechatRooms, Users, Settings } from '@rocket.chat/models';
 import { Match, check } from 'meteor/check';
 import { Meteor } from 'meteor/meteor';
 
@@ -13,15 +13,18 @@ const logger = new Logger('QueueManager');
 
 export const saveQueueInquiry = async (inquiry: ILivechatInquiryRecord) => {
 	await LivechatInquiry.queueInquiry(inquiry._id);
-	await callbacks.run('livechat.afterInquiryQueued', inquiry);
+	void callbacks.run('livechat.afterInquiryQueued', inquiry);
 };
 
-export const queueInquiry = async (inquiry: ILivechatInquiryRecord, defaultAgent?: SelectedAgent) => {
+export const queueInquiry = async (inquiry: ILivechatInquiryRecord, room: IOmnichannelRoom, defaultAgent?: SelectedAgent) => {
 	const inquiryAgent = await RoutingManager.delegateAgent(defaultAgent, inquiry);
-	logger.debug(`Delegating inquiry with id ${inquiry._id} to agent ${defaultAgent?.username}`);
+	logger.debug({
+		msg: 'Routing inquiry',
+		inquiryId: inquiry._id,
+		inquiryAgent,
+	});
 
-	await callbacks.run('livechat.beforeRouteChat', inquiry, inquiryAgent);
-	const room = await LivechatRooms.findOneById(inquiry.rid, { projection: { v: 1 } });
+	const dbInquiry = await callbacks.run('livechat.beforeRouteChat', inquiry, inquiryAgent);
 	if (!room || !(await Omnichannel.isWithinMACLimit(room))) {
 		logger.error({ msg: 'MAC limit reached, not routing inquiry', inquiry });
 		// We'll queue these inquiries so when new license is applied, they just start rolling again
@@ -29,17 +32,25 @@ export const queueInquiry = async (inquiry: ILivechatInquiryRecord, defaultAgent
 		await saveQueueInquiry(inquiry);
 		return;
 	}
-	const dbInquiry = await LivechatInquiry.findOneById(inquiry._id);
-
-	if (!dbInquiry) {
-		throw new Error('inquiry-not-found');
-	}
 
 	if (dbInquiry.status === 'ready') {
 		logger.debug(`Inquiry with id ${inquiry._id} is ready. Delegating to agent ${inquiryAgent?.username}`);
-		return RoutingManager.delegateInquiry(dbInquiry, inquiryAgent);
+		return RoutingManager.delegateInquiry(dbInquiry, inquiryAgent, room);
 	}
 };
+
+async function updateRoomCount() {
+	const livechatCount = await Settings.findOneAndUpdate(
+		{
+			_id: 'Livechat_Room_Count',
+		},
+		// @ts-expect-error - Caused by `OnlyFieldsOfType` on mongo which excludes `SettingValue` from $inc
+		{ $inc: { value: 1 } },
+		{ returnDocument: 'after' },
+	);
+
+	return livechatCount.value;
+}
 
 type queueManager = {
 	requestRoom: (params: {
@@ -57,7 +68,6 @@ type queueManager = {
 
 export const QueueManager: queueManager = {
 	async requestRoom({ guest, message, roomInfo, agent, extraData }) {
-		logger.debug(`Requesting a room for guest ${guest._id}`);
 		check(
 			message,
 			Match.ObjectIncluding({
@@ -83,35 +93,44 @@ export const QueueManager: queueManager = {
 		const { rid } = message;
 		const name = (roomInfo?.fname as string) || guest.name || guest.username;
 
-		const room = await LivechatRooms.findOneById(await createLivechatRoom(rid, name, guest, roomInfo, extraData));
-		if (!room) {
-			logger.error(`Room for visitor ${guest._id} not found`);
-			throw new Error('room-not-found');
-		}
-		logger.debug(`Room for visitor ${guest._id} created with id ${room._id}`);
-
-		const inquiry = await LivechatInquiry.findOneById(
-			await createLivechatInquiry({
+		const [, inquiryId] = await Promise.all([
+			createLivechatRoom(rid, name, guest, roomInfo, extraData),
+			createLivechatInquiry({
 				rid,
 				name,
 				guest,
 				message,
 				extraData: { ...extraData, source: roomInfo.source },
 			}),
-		);
+		]);
+
+		const [inquiry, dbRoom] = await Promise.all([
+			LivechatInquiry.findOneById(inquiryId),
+			LivechatRooms.findOneById(rid),
+			updateRoomCount(),
+		]);
+
 		if (!inquiry) {
-			logger.error(`Inquiry for visitor ${guest._id} not found`);
 			throw new Error('inquiry-not-found');
 		}
 
-		await LivechatRooms.updateRoomCount();
+		if (!dbRoom) {
+			throw new Error('room-not-found');
+		}
 
-		await queueInquiry(inquiry, agent);
-		logger.debug(`Inquiry ${inquiry._id} queued`);
+		logger.debug({
+			msg: 'New room created',
+			rid,
+			inquiryId: inquiry._id,
+		});
 
-		const newRoom = await LivechatRooms.findOneById(rid);
+		const newRoom = await queueInquiry(inquiry, dbRoom, agent);
+		logger.debug({
+			msg: 'Inquiry queued',
+			inquiryId: inquiry._id,
+		});
+
 		if (!newRoom) {
-			logger.error(`Room with id ${rid} not found`);
 			throw new Error('room-not-found');
 		}
 
@@ -143,7 +162,7 @@ export const QueueManager: queueManager = {
 		};
 
 		let defaultAgent: SelectedAgent | undefined;
-		if (servedBy?.username && (await Users.findOneOnlineAgentByUserList(servedBy.username))) {
+		if (servedBy?.username && (await Users.findOneOnlineAgentByUserList(servedBy.username, { projection: { _id: 1 } }))) {
 			defaultAgent = { agentId: servedBy._id, username: servedBy.username };
 		}
 
@@ -152,12 +171,14 @@ export const QueueManager: queueManager = {
 		if (!room) {
 			throw new Error('room-not-found');
 		}
-		const inquiry = await LivechatInquiry.findOneById(await createLivechatInquiry({ rid, name, guest, message, extraData: { source } }));
+		const inquiry = await LivechatInquiry.findOneById(
+			await createLivechatInquiry({ rid, name: name || guest.username, guest, message, extraData: { source } }),
+		);
 		if (!inquiry) {
 			throw new Error('inquiry-not-found');
 		}
 
-		await queueInquiry(inquiry, defaultAgent);
+		await queueInquiry(inquiry, room, defaultAgent);
 		logger.debug(`Inquiry ${inquiry._id} queued`);
 
 		return room;
