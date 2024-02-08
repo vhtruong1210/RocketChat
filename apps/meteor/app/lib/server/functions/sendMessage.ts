@@ -1,4 +1,4 @@
-import { Message } from '@rocket.chat/core-services';
+import { api, Message } from '@rocket.chat/core-services';
 import type { IMessage, IRoom } from '@rocket.chat/core-typings';
 import { Messages } from '@rocket.chat/models';
 import { Match, check } from 'meteor/check';
@@ -288,5 +288,6 @@ export const sendMessage = async function (user: any, message: any, room: any, u
 	void broadcastMessageFromData({
 		id: message._id,
 	});
+	await api.broadcast('room.afterSaveMessage', message, room);
 	return message;
 };

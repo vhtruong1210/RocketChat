@@ -1,5 +1,5 @@
 import { AppsEngineException } from '@rocket.chat/apps-engine/definition/exceptions';
-import { Message, Team } from '@rocket.chat/core-services';
+import { Federation, Message, Team, api } from '@rocket.chat/core-services';
 import type { IUser } from '@rocket.chat/core-typings';
 import { Subscriptions, Users, Rooms } from '@rocket.chat/models';
 import { Meteor } from 'meteor/meteor';
@@ -9,6 +9,7 @@ import { AppEvents, Apps } from '../../../../ee/server/apps';
 import { callbacks } from '../../../../lib/callbacks';
 import { getSubscriptionAutotranslateDefaultConfig } from '../../../../server/lib/getSubscriptionAutotranslateDefaultConfig';
 import { roomCoordinator } from '../../../../server/lib/rooms/roomCoordinator';
+import { settings } from '../../../settings/server';
 
 export const addUserToRoom = async function (
 	rid: string,
@@ -39,10 +40,12 @@ export const addUserToRoom = async function (
 		return;
 	}
 
-	try {
-		await callbacks.run('federation.beforeAddUserToARoom', { user, inviter }, room);
-	} catch (error) {
-		throw new Meteor.Error((error as any)?.message);
+	if (settings.get('Federation_Matrix_enabled')) {
+		try {
+			await Federation.runFederationChecksBeforeAddUserToRoom({ user, inviter }, room);
+		} catch (error: any) {
+			throw new Meteor.Error((error as any)?.message);
+		}
 	}
 
 	await callbacks.run('beforeAddedToRoom', { user: userToBeAdded, inviter: userToBeAdded });
@@ -114,6 +117,7 @@ export const addUserToRoom = async function (
 		process.nextTick(async () => {
 			// Add a new event, with an optional inviter
 			await callbacks.run('afterAddedToRoom', { user: userToBeAdded, inviter }, room);
+			void api.broadcast('room.onAddUserToARoom', { user: userToBeAdded, inviter }, room);
 
 			// Keep the current event
 			await callbacks.run('afterJoinRoom', userToBeAdded, room);

@@ -136,4 +136,5 @@ export * from './ICustomOAuthConfig';
 export * from './IModerationReport';
 export * from './CustomFieldMetadata';
 
+export * from './IRoomConfig';
 export * as Cloud from './cloud';

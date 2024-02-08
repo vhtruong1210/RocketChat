@@ -88,6 +88,9 @@ export async function deleteMessage(message: IMessage, user: IUser): Promise<voi
 	}
 
 	await callbacks.run('afterDeleteMessage', deletedMsg, room);
+	if (deletedMsg && room) {
+		void api.broadcast('room.afterDeleteMessage', deletedMsg, room);
+	}
 
 	if (keepHistory || showDeletedStatus) {
 		void broadcastMessageFromData({
