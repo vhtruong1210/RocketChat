@@ -25,9 +25,20 @@ type RoomMembersItemProps = {
 	rid: IRoom['_id'];
 	reload: () => void;
 	useRealName: boolean;
+	isMuted: boolean;
 } & Pick<IUser, 'federated' | 'username' | 'name' | '_id'>;
 
-const RoomMembersItem = ({ _id, name, username, federated, onClickView, rid, reload, useRealName }: RoomMembersItemProps): ReactElement => {
+const RoomMembersItem = ({
+	_id,
+	name,
+	username,
+	federated,
+	onClickView,
+	rid,
+	reload,
+	useRealName,
+	isMuted,
+}: RoomMembersItemProps): ReactElement => {
 	const [showButton, setShowButton] = useState();
 
 	const isReduceMotionEnabled = usePrefersReducedMotion();
@@ -50,7 +61,7 @@ const RoomMembersItem = ({ _id, name, username, federated, onClickView, rid, rel
 			</OptionContent>
 			<OptionMenu onClick={preventPropagation}>
 				{showButton ? (
-					<UserActions username={username} name={name} rid={rid} _id={_id} reload={reload} />
+					<UserActions username={username} name={name} rid={rid} _id={_id} isUserMuted={isMuted} reload={reload} />
 				) : (
 					<IconButton tiny icon='kebab' />
 				)}

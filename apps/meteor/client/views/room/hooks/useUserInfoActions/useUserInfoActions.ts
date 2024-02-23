@@ -35,7 +35,7 @@ type UserMenuAction = {
 }[];
 
 export const useUserInfoActions = (
-	user: Pick<IUser, '_id' | 'username' | 'name'>,
+	user: Pick<IUser, '_id' | 'username' | 'name'> & { isMuted?: boolean },
 	rid: IRoom['_id'],
 	reload?: () => void,
 	size = 2,
