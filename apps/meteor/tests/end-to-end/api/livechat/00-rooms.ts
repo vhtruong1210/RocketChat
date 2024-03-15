@@ -58,6 +58,7 @@ describe('LIVECHAT - rooms', function () {
 
 	before(async () => {
 		await updateSetting('Livechat_enabled', true);
+		await updateSetting('Omnichannel_queue_delay_timeout', 1);
 		await createAgent();
 		await makeAgentAvailable();
 		visitor = await createVisitor();
@@ -746,6 +747,7 @@ describe('LIVECHAT - rooms', function () {
 
 			const newVisitor = await createVisitor(initialDepartment._id);
 			const newRoom = await createLivechatRoom(newVisitor.token);
+			await sleep(5000);
 
 			await request
 				.post(api('livechat/room.forward'))
