@@ -266,7 +266,7 @@ const handleNickname = (updateUser, nickname) => {
 };
 
 const saveNewUser = async function (userData, sendPassword) {
-	await validateEmailDomain(userData.email);
+	await validateEmailDomain(userData.email.trim());
 
 	const roles = (!!userData.roles && userData.roles.length > 0 && userData.roles) || getNewUserRoles();
 	const isGuest = roles && roles.length === 1 && roles.includes('guest');
@@ -281,7 +281,7 @@ const saveNewUser = async function (userData, sendPassword) {
 		skipNewUserRolesSetting: true,
 	};
 	if (userData.email) {
-		createUser.email = userData.email;
+		createUser.email = userData.email.trim();
 	}
 
 	const _id = await Accounts.createUserAsync(createUser);
@@ -388,7 +388,7 @@ export const saveUser = async function (userId, userData) {
 
 	if (userData.email) {
 		const shouldSendVerificationEmailToUser = userData.verified !== true;
-		await setEmail(userData._id, userData.email, shouldSendVerificationEmailToUser);
+		await setEmail(userData._id, userData.email.trim(), shouldSendVerificationEmailToUser);
 	}
 
 	if (
