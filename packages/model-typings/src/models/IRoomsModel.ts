@@ -86,21 +86,14 @@ export interface IRoomsModel extends IBaseModel<IRoom> {
 
 	setTeamDefaultById(rid: IRoom['_id'], teamDefault: NonNullable<IRoom['teamDefault']>, options?: UpdateOptions): Promise<UpdateResult>;
 
-	findChannelsWithNumberOfMessagesBetweenDate(params: {
+	findChannelsByTypesWithNumberOfMessagesBetweenDate(params: {
+		types: Array<IRoom['t']>;
 		start: number;
 		end: number;
 		startOfLastWeek: number;
 		endOfLastWeek: number;
 		options?: any;
 	}): AggregationCursor<IChannelsWithNumberOfMessagesBetweenDate>;
-
-	countChannelsWithNumberOfMessagesBetweenDate(params: {
-		start: number;
-		end: number;
-		startOfLastWeek: number;
-		endOfLastWeek: number;
-		options?: any;
-	}): AggregationCursor<{ total: number }>;
 
 	findOneByName(name: NonNullable<IRoom['name']>, options?: FindOptions<IRoom>): Promise<IRoom | null>;
 
@@ -125,6 +118,8 @@ export interface IRoomsModel extends IBaseModel<IRoom> {
 	setRoomTypeById(roomId: IRoom['_id'], roomType: IRoom['t']): Promise<UpdateResult>;
 
 	setRoomNameById(roomId: IRoom['_id'], name: IRoom['name']): Promise<UpdateResult>;
+
+	setSidepanelById(roomId: IRoom['_id'], sidepanel: IRoom['sidepanel']): Promise<UpdateResult>;
 
 	setFnameById(_id: IRoom['_id'], fname: IRoom['fname']): Promise<UpdateResult>;
 
