@@ -2,6 +2,7 @@ import type { SelectOption } from '@rocket.chat/fuselage';
 import { Box, Select, Margins, Option } from '@rocket.chat/fuselage';
 import { useMutableCallback } from '@rocket.chat/fuselage-hooks';
 import { useTranslation } from '@rocket.chat/ui-contexts';
+import { useQueryClient } from '@tanstack/react-query';
 import type { MutableRefObject } from 'react';
 import React, { useRef, useState, useMemo, useEffect, Fragment } from 'react';
 
@@ -30,10 +31,11 @@ const dateRange = getDateRange();
 
 const RealTimeMonitoringPage = () => {
 	const t = useTranslation();
+	const queryClient = useQueryClient();
 
 	const keys = useRef<string[]>([...Array(10).map((_, i) => `${i}_${new Date().getTime()}`)]);
 
-	const [reloadFrequency, setReloadFrequency] = useState<string>('5');
+	const [reloadFrequency, setReloadFrequency] = useState<number>(5);
 	const [departmentId, setDepartment] = useState('');
 
 	const reloadRef = useRef<{ [x: string]: () => void }>({});
@@ -69,7 +71,7 @@ const RealTimeMonitoringPage = () => {
 			clearInterval(interval);
 			randomizeKeys(keys);
 		};
-	}, [reloadCharts, reloadFrequency]);
+	}, [queryClient, reloadCharts, reloadFrequency]);
 
 	// TODO Check if Select Options does indeed accepts Elements as labels
 	const reloadOptions = useMemo(
@@ -105,7 +107,7 @@ const RealTimeMonitoringPage = () => {
 							<Label mb={4}>{t('Update_every')}</Label>
 							<Select
 								options={reloadOptions}
-								onChange={useMutableCallback((val) => setReloadFrequency(val as string))}
+								onChange={useMutableCallback((val) => setReloadFrequency(Number(val)))}
 								value={reloadFrequency}
 							/>
 						</Box>
@@ -114,14 +116,22 @@ const RealTimeMonitoringPage = () => {
 						<ConversationOverview key={keys?.current[0]} flexGrow={1} flexShrink={1} width='50%' reloadRef={reloadRef} params={allParams} />
 					</Box>
 					<Box display='flex' flexDirection='row' w='full' alignItems='stretch' flexShrink={1}>
-						<ChatsChart key={keys?.current[1]} flexGrow={1} flexShrink={1} width='50%' mie={2} reloadRef={reloadRef} params={allParams} />
+						<ChatsChart
+							reloadFrequency={reloadFrequency}
+							key={keys?.current[1]}
+							flexGrow={1}
+							flexShrink={1}
+							width='50%'
+							mie={2}
+							params={allParams}
+						/>
 						<ChatsPerAgentChart
+							reloadFrequency={reloadFrequency}
 							key={keys?.current[2]}
 							flexGrow={1}
 							flexShrink={1}
 							width='50%'
 							mis={2}
-							reloadRef={reloadRef}
 							params={allParams}
 						/>
 					</Box>
@@ -130,21 +140,21 @@ const RealTimeMonitoringPage = () => {
 					</Box>
 					<Box display='flex' flexDirection='row' w='full' alignItems='stretch' flexShrink={1}>
 						<AgentStatusChart
+							reloadFrequency={reloadFrequency}
 							key={keys?.current[4]}
 							flexGrow={1}
 							flexShrink={1}
 							width='50%'
 							mie={2}
-							reloadRef={reloadRef}
 							params={allParams}
 						/>
 						<ChatsPerDepartmentChart
+							reloadFrequency={reloadFrequency}
 							key={keys?.current[5]}
 							flexGrow={1}
 							flexShrink={1}
 							width='50%'
 							mis={2}
-							reloadRef={reloadRef}
 							params={allParams}
 						/>
 					</Box>
@@ -152,13 +162,27 @@ const RealTimeMonitoringPage = () => {
 						<AgentsOverview key={keys?.current[6]} flexGrow={1} flexShrink={1} reloadRef={reloadRef} params={allParams} />
 					</Box>
 					<Box display='flex' w='full' flexShrink={1}>
-						<ChatDurationChart key={keys?.current[7]} flexGrow={1} flexShrink={1} w='100%' reloadRef={reloadRef} params={allParams} />
+						<ChatDurationChart
+							reloadFrequency={reloadFrequency}
+							key={keys?.current[7]}
+							flexGrow={1}
+							flexShrink={1}
+							w='100%'
+							params={allParams}
+						/>
 					</Box>
 					<Box display='flex' flexDirection='row' w='full' alignItems='stretch' flexShrink={1}>
 						<ProductivityOverview key={keys?.current[8]} flexGrow={1} flexShrink={1} reloadRef={reloadRef} params={allParams} />
 					</Box>
 					<Box display='flex' w='full' flexShrink={1}>
-						<ResponseTimesChart key={keys?.current[9]} flexGrow={1} flexShrink={1} w='100%' reloadRef={reloadRef} params={allParams} />
+						<ResponseTimesChart
+							reloadFrequency={reloadFrequency}
+							key={keys?.current[9]}
+							flexGrow={1}
+							flexShrink={1}
+							w='100%'
+							params={allParams}
+						/>
 					</Box>
 				</Margins>
 			</PageScrollableContentWithShadow>
