@@ -1,5 +1,5 @@
 import { Field, FieldLabel, FieldRow, InputBox, Select } from '@rocket.chat/fuselage';
-import type { FormEventHandler, ReactElement } from 'react';
+import type { FormEventHandler, Key, ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -62,7 +62,8 @@ function TimespanSettingInput({
 		setInternalValue(newValue);
 	};
 
-	const handleChangeTimeUnit = (nextTimeUnit: string | number) => {
+	// FIXME: `Key` is not a valid type
+	const handleChangeTimeUnit = (nextTimeUnit: Key) => {
 		if (typeof nextTimeUnit !== 'string') {
 			return;
 		}

@@ -3,7 +3,7 @@ import { Avatar } from '@rocket.chat/fuselage';
 import { SettingsContext } from '@rocket.chat/ui-contexts';
 import { action } from '@storybook/addon-actions';
 import type { Meta } from '@storybook/react';
-import { ComponentProps } from 'react';
+import { ComponentProps, ComponentType } from 'react';
 
 import {
 	HeaderV2 as Header,
@@ -27,11 +27,11 @@ export default {
 	title: 'Components/HeaderV2',
 	component: Header,
 	subcomponents: {
-		HeaderToolbar,
-		HeaderToolbarAction,
-		HeaderAvatar,
-		HeaderContent,
-		HeaderContentRow,
+		HeaderToolbar: HeaderToolbar as ComponentType<unknown>,
+		HeaderToolbarAction: HeaderToolbarAction as ComponentType<unknown>,
+		HeaderAvatar: HeaderAvatar as ComponentType<unknown>,
+		HeaderContent: HeaderContent as ComponentType<unknown>,
+		HeaderContentRow: HeaderContentRow as ComponentType<unknown>,
 	},
 	parameters: {
 		layout: 'fullscreen',

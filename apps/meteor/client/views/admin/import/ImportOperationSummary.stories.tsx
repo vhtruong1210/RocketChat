@@ -10,7 +10,7 @@ export default {
 	title: 'Admin/Import/ImportOperationSummary',
 	component: ImportOperationSummary,
 	subcomponents: {
-		ImportOperationSummarySkeleton: ImportOperationSummarySkeleton as ComponentType<any>,
+		ImportOperationSummarySkeleton: ImportOperationSummarySkeleton as ComponentType<unknown>,
 	},
 	parameters: {
 		layout: 'centered',

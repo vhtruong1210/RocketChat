@@ -1,6 +1,6 @@
 import { useMergedRefs } from '@rocket.chat/fuselage-hooks';
 import type { ForwardedRef, HTMLAttributes } from 'react';
-import React, { forwardRef } from 'react';
+import React, { memo, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useSidebarListNavigation } from './useSidebarListNavigation';
@@ -15,4 +15,4 @@ const RoomListWrapper = forwardRef(function RoomListWrapper(props: RoomListWrapp
 	return <div role='list' aria-label={t('Channels')} ref={mergedRefs} {...props} />;
 });
 
-export default RoomListWrapper;
+export default memo(RoomListWrapper);

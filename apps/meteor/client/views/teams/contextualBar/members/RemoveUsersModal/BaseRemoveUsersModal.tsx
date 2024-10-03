@@ -39,15 +39,22 @@ const BaseRemoveUsersModal = ({
 
 	const eligibleRooms = rooms?.filter(({ isLastOwner }) => !isLastOwner);
 
-	const onChangeRoomSelection = useCallback((room) => {
-		setSelectedRooms((selectedRooms) => {
-			if (selectedRooms[room._id]) {
-				delete selectedRooms[room._id];
-				return { ...selectedRooms };
-			}
-			return { ...selectedRooms, [room._id]: room };
-		});
-	}, []);
+	const onChangeRoomSelection = useCallback(
+		(
+			room: Serialized<IRoom> & {
+				isLastOwner?: boolean;
+			},
+		) => {
+			setSelectedRooms((selectedRooms) => {
+				if (selectedRooms[room._id]) {
+					delete selectedRooms[room._id];
+					return { ...selectedRooms };
+				}
+				return { ...selectedRooms, [room._id]: room };
+			});
+		},
+		[],
+	);
 
 	const onToggleAllRooms = useMutableCallback(() => {
 		if (Object.values(selectedRooms).filter(Boolean).length === 0) {

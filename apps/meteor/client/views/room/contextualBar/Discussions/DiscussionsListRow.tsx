@@ -9,7 +9,7 @@ import DiscussionsListItem from './components/DiscussionsListItem';
 type DiscussionListRowProps = {
 	discussion: IDiscussionMessage;
 	showRealNames: boolean;
-	onClick: (e: MouseEvent) => void;
+	onClick: (e: MouseEvent<HTMLElement>) => void;
 };
 
 function DiscussionListRow({ discussion, showRealNames, onClick }: DiscussionListRowProps) {

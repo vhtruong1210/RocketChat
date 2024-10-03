@@ -8,7 +8,7 @@ import GenericModal, { GenericModalDoNotAskAgain } from './GenericModal';
 export default {
 	title: 'Components/GenericModal',
 	component: GenericModal,
-	subcomponents: { GenericModalDoNotAskAgain: GenericModalDoNotAskAgain as ComponentType<any> },
+	subcomponents: { GenericModalDoNotAskAgain: GenericModalDoNotAskAgain as ComponentType<unknown> },
 	args: {
 		children: 'This is the content.',
 	},
