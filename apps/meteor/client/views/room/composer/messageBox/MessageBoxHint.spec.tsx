@@ -24,7 +24,6 @@ const renderOptions = {
 			E2EE_Composer_Unencrypted_Message: "You're sending an unencrypted message",
 		})
 		.build(),
-	legacyRoot: true,
 };
 
 describe('MessageBoxHint', () => {

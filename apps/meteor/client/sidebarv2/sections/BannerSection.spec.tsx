@@ -8,7 +8,6 @@ import BannerSection from './BannerSection';
 describe('Sidebar -> BannerSection -> Airgapped restriction', () => {
 	it('Should render null if restricted and not admin', () => {
 		render(<BannerSection />, {
-			legacyRoot: true,
 			wrapper: mockAppRoot()
 				.withJohnDoe({ roles: ['user'] })
 				.withSetting('Cloud_Workspace_AirGapped_Restrictions_Remaining_Days', 0)
@@ -20,7 +19,6 @@ describe('Sidebar -> BannerSection -> Airgapped restriction', () => {
 
 	it('Should render null if admin and not restricted or warning', () => {
 		render(<BannerSection />, {
-			legacyRoot: true,
 			wrapper: mockAppRoot().withJohnDoe().withSetting('Cloud_Workspace_AirGapped_Restrictions_Remaining_Days', 8).build(),
 		});
 
@@ -29,7 +27,6 @@ describe('Sidebar -> BannerSection -> Airgapped restriction', () => {
 
 	it('Should render warning message if admin and warning phase', () => {
 		render(<BannerSection />, {
-			legacyRoot: true,
 			wrapper: mockAppRoot()
 				.withJohnDoe()
 				.withRole('admin')
@@ -42,7 +39,6 @@ describe('Sidebar -> BannerSection -> Airgapped restriction', () => {
 
 	it('Should render restriction message if admin and restricted phase', () => {
 		render(<BannerSection />, {
-			legacyRoot: true,
 			wrapper: mockAppRoot()
 				.withJohnDoe()
 				.withRole('admin')
@@ -55,7 +51,6 @@ describe('Sidebar -> BannerSection -> Airgapped restriction', () => {
 
 	it('Should render restriction message instead of another banner', () => {
 		render(<BannerSection />, {
-			legacyRoot: true,
 			wrapper: mockAppRoot()
 				.withJohnDoe()
 				.withRole('admin')

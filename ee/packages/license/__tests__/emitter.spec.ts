@@ -1,7 +1,3 @@
-/**
- * @jest-environment node
- */
-
 import { MockedLicenseBuilder, getReadyLicenseManager } from './MockedLicenseBuilder';
 
 describe('Event License behaviors', () => {
