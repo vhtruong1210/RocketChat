@@ -20,7 +20,7 @@ const CustomSoundRow = ({ onClick, sound }: CustomSoundRowProps): ReactElement =
 	const customSound = useCustomSound();
 
 	const handleToggle = useCallback(
-		(sound) => {
+		(sound: string) => {
 			setPlayAudio(!isPlay);
 			if (!isPlay) {
 				return customSound.play(sound);

@@ -36,7 +36,9 @@
 		"./**/*",
 		"./.storybook/**/*",
 		"./jest.config.ts",
-		"./.scripts/**/*"
+		"./.scripts/**/*",
+		"./playwright-federation.config.ts",
+		"./playwright.config.ts",
 	],
 	"exclude": [
 		"**/node_modules/**",
