@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop */
-import { installPointerEvent, triggerLongPress } from '@react-spectrum/test-utils';
+import { triggerLongPress } from '@react-spectrum/test-utils';
 import { mockAppRoot } from '@rocket.chat/mock-providers';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -7,8 +7,6 @@ import userEvent from '@testing-library/user-event';
 import DialPad from './VoipDialPad';
 
 const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-
-installPointerEvent();
 
 beforeEach(() => {
 	jest.useFakeTimers();
