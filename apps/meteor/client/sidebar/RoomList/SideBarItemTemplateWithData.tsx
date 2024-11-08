@@ -166,7 +166,7 @@ function SideBarItemTemplateWithData({
 					{...({ style: { display: 'inline-flex', flexShrink: 0 } } as any)}
 					variant={variant}
 					title={badgeTitle}
-					aria-label={`${badgeTitle} from ${title}`}
+					aria-label={`${badgeTitle} ${t('from')} ${title}`}
 				>
 					<span aria-hidden>{unread + tunread?.length}</span>
 				</Badge>
@@ -187,7 +187,7 @@ function SideBarItemTemplateWithData({
 			onClick={(): void => {
 				!selected && sidebar.toggle();
 			}}
-			aria-label={showBadge && isUnread ? `${badgeTitle} from ${title}` : title}
+			aria-label={showBadge && isUnread ? `${badgeTitle} ${t('from')} ${title}` : title}
 			title={title}
 			time={lastMessage?.ts}
 			subtitle={subtitle}
