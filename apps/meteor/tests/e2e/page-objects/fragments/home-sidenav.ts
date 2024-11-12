@@ -68,11 +68,20 @@ export class HomeSidenav {
 		return this.page.locator('role=menuitemcheckbox[name="Profile"]');
 	}
 
-	// TODO: refactor getSidebarItemByName to not use data-qa
-	getSidebarItemByName(name: string, isRead?: boolean): Locator {
-		return this.page.locator(
-			['[data-qa="sidebar-item"]', `[aria-label="${name}"]`, isRead && '[data-unread="false"]'].filter(Boolean).join(''),
-		);
+	getSidebarItemByName(name: string): Locator {
+		return this.page.getByRole('link', { name, exact: true });
+	}
+
+	getSearchItemByName(name: string): Locator {
+		return this.page.getByRole('search').getByRole('listbox').getByRole('link', { name, exact: true });
+	}
+
+	getSidebarItemBadge(name: string): Locator {
+		return this.getSidebarItemByName(`1 unread message from ${name}`).getByRole('status');
+	}
+
+	getSearchItemBadge(name: string): Locator {
+		return this.getSearchItemByName(`1 unread message from ${name}`).getByRole('status');
 	}
 
 	async selectMarkAsUnread(name: string) {
@@ -108,10 +117,6 @@ export class HomeSidenav {
 		await this.page.locator('role=navigation >> role=button[name=Search]').click();
 	}
 
-	getSearchRoomByName(name: string): Locator {
-		return this.page.locator(`role=search >> role=listbox >> role=link >> text="${name}"`);
-	}
-
 	async searchRoom(name: string): Promise<void> {
 		await this.openSearch();
 		await this.page.locator('role=search >> role=searchbox').fill(name);
@@ -129,7 +134,7 @@ export class HomeSidenav {
 
 	async openChat(name: string): Promise<void> {
 		await this.searchRoom(name);
-		await this.getSearchRoomByName(name).click();
+		await this.getSearchItemByName(name).click();
 		await this.waitForChannel();
 	}
 
@@ -179,13 +184,5 @@ export class HomeSidenav {
 		await this.advancedSettingsAccordion.click();
 		await this.checkboxEncryption.click();
 		await this.btnCreate.click();
-	}
-
-	getRoomBadge(roomName: string): Locator {
-		return this.getSidebarItemByName(roomName).getByRole('status', { exact: true });
-	}
-
-	getSearchChannelBadge(name: string): Locator {
-		return this.page.locator(`[data-qa="sidebar-item"][aria-label="${name}"]`).first().getByRole('status', { exact: true });
 	}
 }
