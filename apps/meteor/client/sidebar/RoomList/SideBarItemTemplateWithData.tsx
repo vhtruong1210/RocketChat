@@ -161,8 +161,14 @@ function SideBarItemTemplateWithData({
 	const badges = (
 		<Margins inlineStart={8}>
 			{showBadge && isUnread && (
-				<Badge role='status' {...({ style: { display: 'inline-flex', flexShrink: 0 } } as any)} variant={variant} title={badgeTitle}>
-					{unread + tunread?.length}
+				<Badge
+					role='status'
+					{...({ style: { display: 'inline-flex', flexShrink: 0 } } as any)}
+					variant={variant}
+					title={badgeTitle}
+					aria-label={`${badgeTitle} ${t('from')} ${title}`}
+				>
+					<span aria-hidden>{unread + tunread?.length}</span>
 				</Badge>
 			)}
 			{isOmnichannelRoom(room) && <OmnichannelBadges room={room} />}
@@ -181,7 +187,7 @@ function SideBarItemTemplateWithData({
 			onClick={(): void => {
 				!selected && sidebar.toggle();
 			}}
-			aria-label={title}
+			aria-label={showBadge && isUnread ? `${badgeTitle} ${t('from')} ${title}` : title}
 			title={title}
 			time={lastMessage?.ts}
 			subtitle={subtitle}

@@ -123,8 +123,8 @@ const SidebarItemTemplateWithData = ({
 	const badges = (
 		<>
 			{showUnread && (
-				<SidebarV2ItemBadge variant={unreadVariant} title={unreadTitle} role='status'>
-					{unreadCount.total}
+				<SidebarV2ItemBadge variant={unreadVariant} title={unreadTitle} role='status' aria-label={`${unreadTitle} ${t('from')} ${title}`}>
+					<span aria-hidden>{unreadCount.total}</span>
 				</SidebarV2ItemBadge>
 			)}
 			{isOmnichannelRoom(room) && <OmnichannelBadges room={room} />}
@@ -143,7 +143,7 @@ const SidebarItemTemplateWithData = ({
 			onClick={(): void => {
 				!selected && sidebar.toggle();
 			}}
-			aria-label={title}
+			aria-label={showUnread ? `${unreadTitle} ${t('from')} ${title}` : title}
 			title={title}
 			time={lastMessage?.ts}
 			subtitle={subtitle}
