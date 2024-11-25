@@ -53,8 +53,8 @@ const resetTestData = async ({ api, cleanupOnly = false }: { api?: any; cleanupO
 		{ _id: 'SAML_Custom_Default_mail_overwrite', value: false },
 		{ _id: 'SAML_Custom_Default_name_overwrite', value: false },
 		{ _id: 'SAML_Custom_Default', value: false },
-		{ _id: 'SAML_Custom_Default_role_attribute_sync', value: true },
-		{ _id: 'SAML_Custom_Default_role_attribute_name', value: 'role' },
+		{ _id: 'SAML_Custom_Default_role_attribute_sync', value: true, strict: false },
+		{ _id: 'SAML_Custom_Default_role_attribute_name', value: 'role', strict: false },
 		{ _id: 'SAML_Custom_Default_user_data_fieldmap', value: '{"username":"username", "email":"email", "name": "cn"}' },
 		{ _id: 'SAML_Custom_Default_provider', value: 'test-sp' },
 		{ _id: 'SAML_Custom_Default_issuer', value: 'http://localhost:3000/_saml/metadata/test-sp' },
@@ -64,7 +64,7 @@ const resetTestData = async ({ api, cleanupOnly = false }: { api?: any; cleanupO
 		{ _id: 'SAML_Custom_Default_button_color', value: '#185925' },
 	];
 
-	await Promise.all(settings.map(({ _id, value }) => setSettingValueById(api, _id, value)));
+	await Promise.all(settings.map(({ _id, value, strict }) => setSettingValueById(api, _id, value, strict)));
 };
 
 const setupCustomRole = async (api: BaseTest['api']) => {
