@@ -7,7 +7,7 @@ export const setSettingValueById = async (api: BaseTest['api'], settingId: strin
 
 	if (response.status() !== 200) {
 		throw new Error(
-			`Failed to update setting ${settingId} with value "${value}" [http status: ${response.status()} ${response.statusText()}]`,
+			`Failed to update setting "${settingId}" with value "${value}" [http status: ${response.status()} ${response.statusText()}]`,
 		);
 	}
 
