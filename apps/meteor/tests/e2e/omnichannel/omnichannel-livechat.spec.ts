@@ -123,13 +123,13 @@ test.describe.serial('OC - Livechat - Visitors closing the room is disabled', ()
 	});
 
 	test.beforeAll(async ({ browser, api }) => {
-		await setSettingValueById(api, 'Livechat_allow_visitor_closing_chat', false);
+		await setSettingValueById(api, 'Omnichannel_allow_visitors_to_close_conversation', false);
 		const { page: omniPage } = await createAuxContext(browser, Users.user1, '/', true);
 		poHomeOmnichannel = new HomeOmnichannel(omniPage);
 	});
 
 	test.afterAll(async ({ api }) => {
-		await setSettingValueById(api, 'Livechat_allow_visitor_closing_chat', true);
+		await setSettingValueById(api, 'Omnichannel_allow_visitors_to_close_conversation', true);
 		await api.delete('/livechat/users/agent/user1');
 		await poLiveChat.page.close();
 	});
