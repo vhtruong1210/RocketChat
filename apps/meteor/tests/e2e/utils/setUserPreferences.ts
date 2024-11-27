@@ -9,7 +9,7 @@ export const setUserPreferences = async (
 ): Promise<APIResponse> => {
 	const response = await api.post(`/users.setPreferences`, { data: preferences });
 
-	if (response.status() !== 200) {
+	if (!response.ok()) {
 		throw new Error(`Failed to update user preferences [http status: ${response.status()} ${response.statusText()}]`);
 	}
 
