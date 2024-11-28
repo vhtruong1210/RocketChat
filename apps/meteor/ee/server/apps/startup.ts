@@ -71,20 +71,9 @@ Meteor.startup(async function _appServerOrchestrator() {
 	// Disable apps that depend on add-ons (external modules) if they are invalidated
 	License.onModule(disableAppsWithAddonsCallback);
 
-	let first = true;
-
 	License.once('sync', async () => {
-		if (!first) {
-			return;
-		}
-
 		void Apps.load();
-		first = false;
 		settings.watch('Apps_Logs_TTL', async (value) => {
-			if (!Apps.isInitialized()) {
-				return;
-			}
-
 			let expireAfterSeconds = 0;
 
 			switch (value) {
@@ -108,12 +97,8 @@ Meteor.startup(async function _appServerOrchestrator() {
 			await model!.resetTTLIndex(expireAfterSeconds);
 		});
 
-		settings.watch<'filesystem' | 'gridfs'>('Apps_Framework_Source_Package_Storage_Type', (value) => {
-			Apps.getAppSourceStorage()!.setStorage(value);
-		});
+		settings.watch<'filesystem' | 'gridfs'>('Apps_Framework_Source_Package_Storage_Type', Apps.getAppSourceStorage()!.setStorage);
 
-		settings.watch<string>('Apps_Framework_Source_Package_Storage_FileSystem_Path', (value) => {
-			Apps.getAppSourceStorage()!.setFileSystemStoragePath(value);
-		});
+		settings.watch<string>('Apps_Framework_Source_Package_Storage_FileSystem_Path', Apps.getAppSourceStorage()!.setFileSystemStoragePath);
 	});
 });
