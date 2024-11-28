@@ -1,7 +1,9 @@
+import { License } from '@rocket.chat/license';
 import { Meteor } from 'meteor/meteor';
 
 import { Apps } from './orchestrator';
 import { settings, settingsRegistry } from '../../../app/settings/server';
+import { disableAppsWithAddonsCallback } from '../lib/apps/disableAppsWithAddonsCallback';
 
 Meteor.startup(async function _appServerOrchestrator() {
 	await settingsRegistry.addGroup('General', async function () {
@@ -56,35 +58,62 @@ Meteor.startup(async function _appServerOrchestrator() {
 		});
 	});
 
-	settings.watch('Apps_Logs_TTL', async (value) => {
-		if (!Apps.isInitialized()) {
-			return;
-		}
-
-		let expireAfterSeconds = 0;
-
-		switch (value) {
-			case '7_days':
-				expireAfterSeconds = 604800;
-				break;
-			case '14_days':
-				expireAfterSeconds = 1209600;
-				break;
-			case '30_days':
-				expireAfterSeconds = 2592000;
-				break;
-		}
-
-		if (!expireAfterSeconds) {
-			return;
-		}
-
-		const model = Apps._logModel;
-
-		await model!.resetTTLIndex(expireAfterSeconds);
-	});
-
 	Apps.initialize();
 
-	void Apps.load();
+	async function migratePrivateAppsCallback() {
+		void Apps.migratePrivateApps();
+		void Apps.disableMarketplaceApps();
+	}
+
+	License.onInvalidateLicense(migratePrivateAppsCallback);
+	License.onRemoveLicense(migratePrivateAppsCallback);
+
+	// Disable apps that depend on add-ons (external modules) if they are invalidated
+	License.onModule(disableAppsWithAddonsCallback);
+
+	let first = true;
+
+	License.once('sync', async () => {
+		if (!first) {
+			return;
+		}
+
+		void Apps.load();
+		first = false;
+		settings.watch('Apps_Logs_TTL', async (value) => {
+			if (!Apps.isInitialized()) {
+				return;
+			}
+
+			let expireAfterSeconds = 0;
+
+			switch (value) {
+				case '7_days':
+					expireAfterSeconds = 604800;
+					break;
+				case '14_days':
+					expireAfterSeconds = 1209600;
+					break;
+				case '30_days':
+					expireAfterSeconds = 2592000;
+					break;
+			}
+
+			if (!expireAfterSeconds) {
+				return;
+			}
+
+			const model = Apps._logModel;
+
+			await model!.resetTTLIndex(expireAfterSeconds);
+		});
+
+		settings.watch<'filesystem' | 'gridfs'>('Apps_Framework_Source_Package_Storage_Type', (value) => {
+			Apps.getAppSourceStorage()!.setStorage(value);
+		});
+
+		settings.watch<string>('Apps_Framework_Source_Package_Storage_FileSystem_Path', (value) => {
+			Apps.getAppSourceStorage()!.setFileSystemStoragePath(value);
+		});
+	});
 });

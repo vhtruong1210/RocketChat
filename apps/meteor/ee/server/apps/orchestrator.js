@@ -21,7 +21,6 @@ import {
 	AppContactsConverter,
 } from '../../../app/apps/server/converters';
 import { AppThreadsConverter } from '../../../app/apps/server/converters/threads';
-import { settings } from '../../../app/settings/server';
 import { canEnableApp } from '../../app/license/server/canEnableApp';
 
 function isTesting() {
@@ -257,18 +256,18 @@ export class AppServerOrchestrator {
 export const Apps = new AppServerOrchestrator();
 registerOrchestrator(Apps);
 
-settings.watch('Apps_Framework_Source_Package_Storage_Type', (value) => {
-	if (!Apps.isInitialized()) {
-		appsSourceStorageType = value;
-	} else {
-		Apps.getAppSourceStorage().setStorage(value);
-	}
-});
+// settings.watch('Apps_Framework_Source_Package_Storage_Type', (value) => {
+// 	if (!Apps.isInitialized()) {
+// 		appsSourceStorageType = value;
+// 	} else {
+// 		Apps.getAppSourceStorage().setStorage(value);
+// 	}
+// });
 
-settings.watch('Apps_Framework_Source_Package_Storage_FileSystem_Path', (value) => {
-	if (!Apps.isInitialized()) {
-		appsSourceStorageFilesystemPath = value;
-	} else {
-		Apps.getAppSourceStorage().setFileSystemStoragePath(value);
-	}
-});
+// settings.watch('Apps_Framework_Source_Package_Storage_FileSystem_Path', (value) => {
+// 	if (!Apps.isInitialized()) {
+// 		appsSourceStorageFilesystemPath = value;
+// 	} else {
+// 		Apps.getAppSourceStorage().setFileSystemStoragePath(value);
+// 	}
+// });
