@@ -71,29 +71,29 @@ export const startupApp = async function startupApp() {
 	Apps.initialize();
 
 	void Apps.load();
-	settings.watch('Apps_Logs_TTL', async (value) => {
-		let expireAfterSeconds = 0;
+	// settings.watch('Apps_Logs_TTL', async (value) => {
+	// 	let expireAfterSeconds = 0;
 
-		switch (value) {
-			case '7_days':
-				expireAfterSeconds = 604800;
-				break;
-			case '14_days':
-				expireAfterSeconds = 1209600;
-				break;
-			case '30_days':
-				expireAfterSeconds = 2592000;
-				break;
-		}
+	// 	switch (value) {
+	// 		case '7_days':
+	// 			expireAfterSeconds = 604800;
+	// 			break;
+	// 		case '14_days':
+	// 			expireAfterSeconds = 1209600;
+	// 			break;
+	// 		case '30_days':
+	// 			expireAfterSeconds = 2592000;
+	// 			break;
+	// 	}
 
-		if (!expireAfterSeconds) {
-			return;
-		}
+	// 	if (!expireAfterSeconds) {
+	// 		return;
+	// 	}
 
-		const model = Apps._logModel;
+	// 	const model = Apps._logModel;
 
-		await model!.resetTTLIndex(expireAfterSeconds);
-	});
+	// 	await model!.resetTTLIndex(expireAfterSeconds);
+	// });
 
 	settings.watch<'filesystem' | 'gridfs'>('Apps_Framework_Source_Package_Storage_Type', (value) =>
 		Apps.getAppSourceStorage()!.setStorage(value),
