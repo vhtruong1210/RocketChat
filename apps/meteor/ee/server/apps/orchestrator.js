@@ -21,6 +21,7 @@ import {
 	AppContactsConverter,
 } from '../../../app/apps/server/converters';
 import { AppThreadsConverter } from '../../../app/apps/server/converters/threads';
+import { settings } from '../../../app/settings/server';
 import { canEnableApp } from '../../app/license/server/canEnableApp';
 
 function isTesting() {
@@ -28,9 +29,6 @@ function isTesting() {
 }
 
 const DISABLED_PRIVATE_APP_INSTALLATION = ['yes', 'true'].includes(String(process.env.DISABLE_PRIVATE_APP_INSTALLATION).toLowerCase());
-
-let appsSourceStorageType;
-let appsSourceStorageFilesystemPath;
 
 export class AppServerOrchestrator {
 	constructor() {
@@ -55,7 +53,10 @@ export class AppServerOrchestrator {
 		this._persistModel = AppsPersistence;
 		this._storage = new AppRealStorage(this._model);
 		this._logStorage = new AppRealLogStorage(this._logModel);
-		this._appSourceStorage = new ConfigurableAppSourceStorage(appsSourceStorageType, appsSourceStorageFilesystemPath);
+		this._appSourceStorage = new ConfigurableAppSourceStorage(
+			settings.get('Apps_Framework_Source_Package_Storage_Type'),
+			settings.get('Apps_Framework_Source_Package_Storage_FileSystem_Path'),
+		);
 
 		this._converters = new Map();
 		this._converters.set('messages', new AppMessagesConverter(this));
