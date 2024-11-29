@@ -81,7 +81,10 @@ const UsersTable = ({ workspace = 'local' }): ReactElement => {
 	const query = useDirectoryQuery({ text, current, itemsPerPage }, [sortBy, sortDirection], 'users', workspace);
 	const getDirectoryData = useEndpoint('GET', '/v1/directory');
 
-	const { data, isFetched, isLoading, isError, refetch } = useQuery(['getDirectoryData', query], () => getDirectoryData(query));
+	const { data, isFetched, isPending, isError, refetch } = useQuery({
+		queryKey: ['getDirectoryData', query],
+		queryFn: () => getDirectoryData(query),
+	});
 
 	const handleClick = useCallback(
 		(username) => (e: React.KeyboardEvent | React.MouseEvent) => {
@@ -95,7 +98,7 @@ const UsersTable = ({ workspace = 'local' }): ReactElement => {
 	return (
 		<>
 			<FilterByText placeholder={t('Search_Users')} value={text} onChange={(event) => setText(event.target.value)} />
-			{isLoading && (
+			{isPending && (
 				<GenericTable>
 					<GenericTableHeader>{headers}</GenericTableHeader>
 					<GenericTableBody>

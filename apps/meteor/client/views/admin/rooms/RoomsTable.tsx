@@ -57,7 +57,10 @@ const RoomsTable = ({ reload }: { reload: MutableRefObject<() => void> }): React
 
 	const getAdminRooms = useEndpoint('GET', '/v1/rooms.adminRooms');
 
-	const { data, refetch, isSuccess, isLoading, isError } = useQuery(['rooms', query, 'admin'], async () => getAdminRooms(query));
+	const { data, refetch, isSuccess, isPending, isError } = useQuery({
+		queryKey: ['rooms', query, 'admin'],
+		queryFn: async () => getAdminRooms(query),
+	});
 
 	useEffect(() => {
 		reload.current = refetch;
@@ -121,7 +124,7 @@ const RoomsTable = ({ reload }: { reload: MutableRefObject<() => void> }): React
 	return (
 		<>
 			<RoomsTableFilters setFilters={setRoomFilters} />
-			{isLoading && (
+			{isPending && (
 				<GenericTable>
 					<GenericTableHeader>{headers}</GenericTableHeader>
 					<GenericTableBody>

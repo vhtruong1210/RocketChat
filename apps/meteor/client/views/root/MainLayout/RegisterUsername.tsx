@@ -43,7 +43,10 @@ const RegisterUsername = () => {
 	const setUsername = useMethod('setUsername');
 	const saveCustomFields = useMethod('saveCustomFields');
 	const usernameSuggestion = useEndpoint('GET', '/v1/users.getUsernameSuggestion');
-	const { data, isLoading } = useQuery(['suggestion'], async () => usernameSuggestion());
+	const { data, isLoading } = useQuery({
+		queryKey: ['suggestion'],
+		queryFn: async () => usernameSuggestion(),
+	});
 
 	const {
 		register,
@@ -70,7 +73,7 @@ const RegisterUsername = () => {
 		},
 		onSuccess: () => {
 			dispatchToastMessage({ type: 'success', message: t('Username_has_been_updated') });
-			queryClient.invalidateQueries(['users.info']);
+			queryClient.invalidateQueries({ queryKey: ['users.info'] });
 		},
 		onError: (error: any, { username }) => {
 			if ([error.error, error.errorType].includes('error-blocked-username')) {

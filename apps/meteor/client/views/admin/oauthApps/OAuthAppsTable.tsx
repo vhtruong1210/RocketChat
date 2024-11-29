@@ -22,9 +22,13 @@ const OAuthAppsTable = (): ReactElement => {
 	const uid = { uid: useUserId() || '' };
 
 	const getOauthApps = useEndpoint('GET', '/v1/oauth-apps.list');
-	const { data, isLoading, isSuccess } = useQuery(['oauth-apps', { uid }], async () => {
-		const oauthApps = await getOauthApps(uid);
-		return oauthApps;
+	const { data, isPending, isSuccess } = useQuery({
+		queryKey: ['oauth-apps', { uid }],
+
+		queryFn: async () => {
+			const oauthApps = await getOauthApps(uid);
+			return oauthApps;
+		},
 	});
 
 	const router = useRoute('admin-oauth-apps');
@@ -48,7 +52,7 @@ const OAuthAppsTable = (): ReactElement => {
 
 	return (
 		<>
-			{isLoading && (
+			{isPending && (
 				<GenericTable>
 					<GenericTableHeader>{headers}</GenericTableHeader>
 					<GenericTableBody>

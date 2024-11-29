@@ -4,7 +4,7 @@ import { isThreadMessage, isRoomFederated, isVideoConfMessage, isE2EEMessage } f
 import { MessageToolbar as FuselageMessageToolbar, MessageToolbarItem } from '@rocket.chat/fuselage';
 import { useFeaturePreview } from '@rocket.chat/ui-client';
 import { useUser, useSettings, useTranslation, useMethod, useLayoutHiddenActions } from '@rocket.chat/ui-contexts';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type { ComponentProps, ReactElement } from 'react';
 import React, { memo, useMemo, useRef } from 'react';
 
@@ -108,7 +108,7 @@ const MessageToolbar = ({
 				menu: menuItems.filter((action) => !(isLayoutEmbedded && action.id === 'reply-directly') && !hiddenActions.includes(action.id)),
 			};
 		},
-		keepPreviousData: true,
+		placeholderData: keepPreviousData,
 	});
 
 	const toolbox = useRoomToolbox();

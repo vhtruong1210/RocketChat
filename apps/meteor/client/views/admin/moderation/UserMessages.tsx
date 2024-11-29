@@ -1,6 +1,6 @@
 import { Box, Callout, Message, StatesAction, StatesActions, StatesIcon, StatesTitle } from '@rocket.chat/fuselage';
 import { useMutableCallback } from '@rocket.chat/fuselage-hooks';
-import { useEndpoint, useToastMessageDispatch } from '@rocket.chat/ui-contexts';
+import { useEndpoint } from '@rocket.chat/ui-contexts';
 import { useQuery } from '@tanstack/react-query';
 import React, { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,27 +12,24 @@ import GenericNoResults from '../../../components/GenericNoResults';
 
 const UserMessages = ({ userId, onRedirect }: { userId: string; onRedirect: (mid: string) => void }) => {
 	const { t } = useTranslation();
-	const dispatchToastMessage = useToastMessageDispatch();
 	const getUserMessages = useEndpoint('GET', '/v1/moderation.user.reportedMessages');
 
 	const {
 		data: report,
 		refetch: reloadUserMessages,
-		isLoading,
+		isPending,
 		isSuccess,
 		isError,
-	} = useQuery(
-		['moderation', 'msgReports', 'fetchDetails', { userId }],
-		async () => {
+	} = useQuery({
+		queryKey: ['moderation', 'msgReports', 'fetchDetails', { userId }],
+		queryFn: async () => {
 			const messages = await getUserMessages({ userId });
 			return messages;
 		},
-		{
-			onError: (error) => {
-				dispatchToastMessage({ type: 'error', message: error });
-			},
+		meta: {
+			apiErrorToastMessage: true,
 		},
-	);
+	});
 
 	const handleChange = useMutableCallback(() => {
 		reloadUserMessages();
@@ -41,7 +38,7 @@ const UserMessages = ({ userId, onRedirect }: { userId: string; onRedirect: (mid
 	return (
 		<>
 			<Box display='flex' flexDirection='column' width='full' height='full' overflowY='auto' overflowX='hidden'>
-				{isLoading && <Message>{t('Loading')}</Message>}
+				{isPending && <Message>{t('Loading')}</Message>}
 				{isSuccess && (
 					<Box padding={24}>
 						{report.messages.length > 0 && (

@@ -1,5 +1,5 @@
 import { Field, FieldLabel, FieldRow } from '@rocket.chat/fuselage';
-import { useTranslation, useMethod, useToastMessageDispatch } from '@rocket.chat/ui-contexts';
+import { useTranslation, useMethod } from '@rocket.chat/ui-contexts';
 import { useQuery } from '@tanstack/react-query';
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
@@ -25,22 +25,19 @@ const AuditLogTable = (): ReactElement => {
 		end: createEndOfToday(),
 	}));
 
-	const dispatchToastMessage = useToastMessageDispatch();
-
 	const getAudits = useMethod('auditGetAuditions');
 
-	const { data, isLoading, isSuccess } = useQuery(
-		['audits', dateRange],
-		async () => {
+	const { data, isPending, isSuccess } = useQuery({
+		queryKey: ['audits', dateRange],
+
+		queryFn: async () => {
 			const { start, end } = dateRange;
 			return getAudits({ startDate: start ?? new Date(0), endDate: end ?? new Date() });
 		},
-		{
-			onError: (error) => {
-				dispatchToastMessage({ type: 'error', message: error });
-			},
+		meta: {
+			apiErrorToastMessage: true,
 		},
-	);
+	});
 
 	const headers = (
 		<>
@@ -60,7 +57,7 @@ const AuditLogTable = (): ReactElement => {
 					<DateRangePicker display='flex' flexGrow={1} value={dateRange} onChange={setDateRange} />
 				</FieldRow>
 			</Field>
-			{isLoading && (
+			{isPending && (
 				<GenericTable>
 					<GenericTableHeader>{headers}</GenericTableHeader>
 					<GenericTableBody>

@@ -42,7 +42,7 @@ const RemoveChatButton = ({ _id }: RemoveChatButtonProps) => {
 		);
 	});
 
-	return <IconButton danger small icon='trash' title={t('Remove')} disabled={removeCurrentChatMutation.isLoading} onClick={handleDelete} />;
+	return <IconButton danger small icon='trash' title={t('Remove')} disabled={removeCurrentChatMutation.isPending} onClick={handleDelete} />;
 };
 
 export default RemoveChatButton;

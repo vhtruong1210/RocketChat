@@ -33,11 +33,14 @@ const UserReportInfo = ({ userId }: { userId: string }) => {
 	const {
 		data: report,
 		refetch: reloadUsersReports,
-		isLoading,
+		isPending,
 		isSuccess,
 		isError,
 		dataUpdatedAt,
-	} = useQuery(['moderation', 'userReports', 'fetchDetails', userId], async () => getUserReports({ userId }));
+	} = useQuery({
+		queryKey: ['moderation', 'userReports', 'fetchDetails', userId],
+		queryFn: async () => getUserReports({ userId }),
+	});
 
 	const userProfile = useMemo(() => {
 		if (!report?.user) {
@@ -70,7 +73,7 @@ const UserReportInfo = ({ userId }: { userId: string }) => {
 	return (
 		<>
 			<ContextualbarScrollableContent>
-				{isLoading && <ContextualbarSkeleton />}
+				{isPending && <ContextualbarSkeleton />}
 				{isSuccess && report.reports.length > 0 && (
 					<>
 						{report.user ? (

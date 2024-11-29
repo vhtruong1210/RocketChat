@@ -44,7 +44,9 @@ const CustomSoundsTable = ({ reload, onClick }: CustomSoundsTableProps) => {
 	);
 
 	const getSounds = useEndpoint('GET', '/v1/custom-sounds.list');
-	const { data, refetch, isLoading, isError, isSuccess } = useQuery(['custom-sounds', query], async () => getSounds(query), {
+	const { data, refetch, isPending, isError, isSuccess } = useQuery({
+		queryKey: ['custom-sounds', query],
+		queryFn: async () => getSounds(query),
 		refetchOnMount: false,
 	});
 
@@ -64,7 +66,7 @@ const CustomSoundsTable = ({ reload, onClick }: CustomSoundsTableProps) => {
 	return (
 		<>
 			<FilterByText value={text} onChange={(event) => setText(event.target.value)} />
-			{isLoading && (
+			{isPending && (
 				<GenericTable>
 					<GenericTableHeader>{headers}</GenericTableHeader>
 					<GenericTableBody>

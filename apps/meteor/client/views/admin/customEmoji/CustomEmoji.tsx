@@ -58,7 +58,10 @@ const CustomEmoji = ({ onClick, reload }: CustomEmojiProps) => {
 	);
 
 	const getEmojiList = useEndpoint('GET', '/v1/emoji-custom.all');
-	const { data, refetch, isSuccess, isLoading, isError } = useQuery(['getEmojiList', query], () => getEmojiList(query));
+	const { data, refetch, isSuccess, isPending, isError } = useQuery({
+		queryKey: ['getEmojiList', query],
+		queryFn: () => getEmojiList(query),
+	});
 
 	useEffect(() => {
 		reload.current = refetch;
@@ -67,7 +70,7 @@ const CustomEmoji = ({ onClick, reload }: CustomEmojiProps) => {
 	return (
 		<>
 			<FilterByText value={text} onChange={(event) => setText(event.target.value)} />
-			{isLoading && (
+			{isPending && (
 				<GenericTable>
 					<GenericTableHeader>{headers}</GenericTableHeader>
 					<GenericTableBody>
