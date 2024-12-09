@@ -1,8 +1,8 @@
 import type { IFederationServer, RocketChatRecordDeleted } from '@rocket.chat/core-typings';
 import type { IFederationServersModel } from '@rocket.chat/model-typings';
-import { Users } from '@rocket.chat/models';
 import type { Collection, Db, IndexDescription, UpdateResult } from 'mongodb';
 
+import { Users } from '..';
 import { BaseRaw } from './BaseRaw';
 
 export class FederationServersRaw extends BaseRaw<IFederationServer> implements IFederationServersModel {

@@ -14,8 +14,6 @@ import type {
 } from '@rocket.chat/core-typings';
 import { UserStatus } from '@rocket.chat/core-typings';
 import type { FindPaginated, ILivechatRoomsModel } from '@rocket.chat/model-typings';
-import type { Updater } from '@rocket.chat/models';
-import { Settings } from '@rocket.chat/models';
 import { escapeRegExp } from '@rocket.chat/string-helpers';
 import type {
 	Db,
@@ -32,9 +30,10 @@ import type {
 	UpdateOptions,
 } from 'mongodb';
 
+import { Settings } from '..';
 import { BaseRaw } from './BaseRaw';
-import { getValue } from '../../../app/settings/server/raw';
 import { readSecondaryPreferred } from '../readSecondaryPreferred';
+import type { Updater } from '../updater';
 
 /**
  * @extends BaseRaw<ILivechatRoom>
@@ -221,19 +220,21 @@ export class LivechatRoomsRaw extends BaseRaw<IOmnichannelRoom> implements ILive
 		end,
 		departmentId,
 		onlyCount = false,
+		timeout,
 		options = {},
 	}: {
 		start: Date;
 		end: Date;
 		departmentId?: string;
 		onlyCount?: boolean;
+		timeout?: number;
 		options?: { offset?: number; count?: number; sort?: { [k: string]: number } };
 	}) {
 		const match: Document = {
 			$match: {
 				't': 'l',
 				'metrics.visitorInactivity': {
-					$gte: await getValue('Livechat_visitor_inactivity_timeout'),
+					$gte: timeout,
 				},
 				'ts': { $gte: new Date(start) },
 				'closedAt': { $lte: new Date(end) },
@@ -275,12 +276,14 @@ export class LivechatRoomsRaw extends BaseRaw<IOmnichannelRoom> implements ILive
 	async findPercentageOfAbandonedRooms({
 		start,
 		end,
+		inactivityTimeout,
 		departmentId,
 		onlyCount = false,
 		options = {},
 	}: {
 		start: Date;
 		end: Date;
+		inactivityTimeout: number;
 		departmentId?: string;
 		onlyCount?: boolean;
 		options?: { offset?: number; count?: number; sort?: { [k: string]: number } };
@@ -306,7 +309,7 @@ export class LivechatRoomsRaw extends BaseRaw<IOmnichannelRoom> implements ILive
 									{ $ifNull: ['$metrics.visitorInactivity', false] },
 									{
 										// TODO: move these calls to outside model
-										$gte: ['$metrics.visitorInactivity', await getValue('Livechat_visitor_inactivity_timeout')],
+										$gte: ['$metrics.visitorInactivity', inactivityTimeout],
 									},
 								],
 							},
