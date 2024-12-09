@@ -175,3 +175,56 @@ export const CronHistory = proxify<ICronHistoryModel>('ICronHistoryModel');
 export const Migrations = proxify<IMigrationsModel>('IMigrationsModel');
 export const ModerationReports = proxify<IModerationReportsModel>('IModerationReportsModel');
 export const WorkspaceCredentials = proxify<IWorkspaceCredentialsModel>('IWorkspaceCredentialsModel');
+
+let mongodbDb: Db;
+export const defineDb = (db: Db) => {
+	mongodbDb = db;
+};
+
+export const registerServiceModels = (cb: (db: Db, trash?: Collection<RocketChatRecordDeleted<any>>) => void) => {
+	if (!mongodbDb) {
+		throw new Error('You must call defineDb before calling registerServiceModels');
+	}
+	cb(mongodbDb);
+};
+
+// export function registerServiceModels3(cb: (db: Db, trash?: Collection<RocketChatRecordDeleted<any>>) => void): void {
+
+// }
+
+export function registerServiceModels2(db: Db, trash?: Collection<RocketChatRecordDeleted<any>>): void {
+	// Settings, Users, UsersSessions
+
+	registerModel('ISettingsModel', () => new SettingsRaw(db, trash as Collection<RocketChatRecordDeleted<ISetting>>));
+	registerModel('IUsersSessionsModel', () => new UsersSessionsRaw(db));
+	registerModel('IUsersModel', () => new UsersRaw(db));
+
+	// registerModel('IRolesModel', () => new RolesRaw(db));
+	// registerModel('IRoomsModel', () => new RoomsRaw(db));
+	// registerModel('ISubscriptionsModel', () => new SubscriptionsRaw(db, trash as Collection<RocketChatRecordDeleted<ISubscription>>));
+	// registerModel('ITeamModel', () => new TeamRaw(db));
+	// registerModel('ITeamMemberModel', () => new TeamMemberRaw(db));
+
+	// registerModel('IMessagesModel', () => new MessagesRaw(db));
+
+	// registerModel(
+	// 	'ILivechatInquiryModel',
+	// 	() => new LivechatInquiryRaw(db, trash as Collection<RocketChatRecordDeleted<ILivechatInquiryRecord>>),
+	// );
+	// registerModel(
+	// 	'ILivechatDepartmentAgentsModel',
+	// 	() => new LivechatDepartmentAgentsRaw(db, trash as Collection<RocketChatRecordDeleted<ILivechatDepartmentAgents>>),
+	// );
+
+	// registerModel('IPermissionsModel', () => new PermissionsRaw(db));
+	// registerModel('ILoginServiceConfigurationModel', () => new LoginServiceConfigurationRaw(db));
+	// registerModel('IInstanceStatusModel', () => new InstanceStatusRaw(db));
+	// registerModel('IIntegrationHistoryModel', () => new IntegrationHistoryRaw(db));
+	// registerModel('IIntegrationsModel', () => new IntegrationsRaw(db));
+	// registerModel('IEmailInboxModel', () => new EmailInboxRaw(db));
+	// registerModel('IPbxEventsModel', () => new PbxEventsRaw(db));
+	// registerModel('ILivechatPriorityModel', new LivechatPriorityRaw(db));
+	// registerModel('ILivechatRoomsModel', () => new LivechatRoomsRaw(db));
+	// registerModel('IUploadsModel', () => new UploadsRaw(db));
+	// registerModel('ILivechatVisitorsModel', () => new LivechatVisitorsRaw(db));
+}

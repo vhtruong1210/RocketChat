@@ -34,7 +34,7 @@ import type {
 
 import { BaseRaw } from './BaseRaw';
 import { getValue } from '../../../app/settings/server/raw';
-import { readSecondaryPreferred } from '../../database/readSecondaryPreferred';
+import { readSecondaryPreferred } from '../readSecondaryPreferred';
 
 /**
  * @extends BaseRaw<ILivechatRoom>

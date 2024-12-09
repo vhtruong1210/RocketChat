@@ -12,7 +12,10 @@ const PORT = process.env.PORT || 3031;
 
 	startTracing({ service: 'presence-service', db: client });
 
-	registerServiceModels(db, await getTrashCollection());
+	// registerServiceModels(db, await getTrashCollection());
+
+	defineDb(db);
+	registerServiceModels
 
 	api.setBroker(broker);
 

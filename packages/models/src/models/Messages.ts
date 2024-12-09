@@ -31,7 +31,7 @@ import type {
 
 import { BaseRaw } from './BaseRaw';
 import { otrSystemMessages } from '../../../app/otr/lib/constants';
-import { readSecondaryPreferred } from '../../database/readSecondaryPreferred';
+import { readSecondaryPreferred } from '../readSecondaryPreferred';
 
 type DeepWritable<T> = T extends (...args: any) => any
 	? T

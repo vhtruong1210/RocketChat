@@ -5,7 +5,7 @@ import type {
 	ISubscription,
 	RocketChatRecordDeleted,
 } from '@rocket.chat/core-typings';
-import { registerModel } from '@rocket.chat/models';
+import { registerModel, registerServiceModels } from '@rocket.chat/models';
 import type { Collection, Db } from 'mongodb';
 
 import { EmailInboxRaw } from '../../../server/models/raw/EmailInbox';
@@ -32,7 +32,7 @@ import { UsersSessionsRaw } from '../../../server/models/raw/UsersSessions';
 import { LivechatPriorityRaw } from '../models/raw/LivechatPriority';
 
 // TODO add trash param to appropiate model instances
-export function registerServiceModels(db: Db, trash?: Collection<RocketChatRecordDeleted<any>>): void {
+export function registerServiceModels((db: Db, trash?: Collection<RocketChatRecordDeleted<any>>) => {
 	registerModel('IRolesModel', () => new RolesRaw(db));
 	registerModel('IRoomsModel', () => new RoomsRaw(db));
 	registerModel('ISettingsModel', () => new SettingsRaw(db, trash as Collection<RocketChatRecordDeleted<ISetting>>));
@@ -63,4 +63,4 @@ export function registerServiceModels(db: Db, trash?: Collection<RocketChatRecor
 	registerModel('ILivechatRoomsModel', () => new LivechatRoomsRaw(db));
 	registerModel('IUploadsModel', () => new UploadsRaw(db));
 	registerModel('ILivechatVisitorsModel', () => new LivechatVisitorsRaw(db));
-}
+});
