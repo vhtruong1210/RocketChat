@@ -1,5 +1,7 @@
+export * from './models/BaseRaw';
 export * from './models/Analytics';
 export * from './models/Apps';
+export * from './models/AppLogsModel';
 // export * from './models/Assets';
 export * from './models/Avatars';
 export * from './models/Banners';
