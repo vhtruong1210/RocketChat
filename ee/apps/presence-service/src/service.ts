@@ -1,9 +1,8 @@
 import { api, getConnection, getTrashCollection } from '@rocket.chat/core-services';
+import { registerServiceModels } from '@rocket.chat/models';
 import { broker } from '@rocket.chat/network-broker';
 import { startTracing } from '@rocket.chat/tracing';
 import polka from 'polka';
-
-import { registerServiceModels } from '../../../../apps/meteor/ee/server/lib/registerServiceModels';
 
 const PORT = process.env.PORT || 3031;
 
@@ -12,10 +11,7 @@ const PORT = process.env.PORT || 3031;
 
 	startTracing({ service: 'presence-service', db: client });
 
-	// registerServiceModels(db, await getTrashCollection());
-
-	defineDb(db);
-	registerServiceModels
+	registerServiceModels(db, await getTrashCollection());
 
 	api.setBroker(broker);
 
