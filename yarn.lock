@@ -9557,9 +9557,12 @@ __metadata:
   dependencies:
     "@rocket.chat/jest-presets": "workspace:~"
     "@rocket.chat/model-typings": "workspace:~"
+    "@rocket.chat/rest-typings": "workspace:^"
     "@types/jest": "npm:~29.5.14"
+    "@types/node-rsa": "npm:^1.1.4"
     eslint: "npm:~8.45.0"
     jest: "npm:^29.7.0"
+    node-rsa: "npm:^1.1.1"
     typescript: "npm:~5.7.2"
   languageName: unknown
   linkType: soft

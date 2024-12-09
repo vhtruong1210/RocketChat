@@ -4,7 +4,7 @@ import type { IMessage, IRoom, IUser, MessageAttachment, FileProp, RoomType } fr
 import { Messages } from '@rocket.chat/models';
 
 import { settings } from '../../../app/settings/server';
-import { readSecondaryPreferred } from '../readSecondaryPreferred';
+import { readSecondaryPreferred } from '../../database/readSecondaryPreferred';
 import { joinPath } from '../fileUtils';
 import { i18n } from '../i18n';
 

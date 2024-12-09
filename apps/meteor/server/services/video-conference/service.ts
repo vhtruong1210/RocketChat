@@ -50,7 +50,7 @@ import { getUserAvatarURL } from '../../../app/utils/server/getUserAvatarURL';
 import { getUserPreference } from '../../../app/utils/server/lib/getUserPreference';
 import { callbacks } from '../../../lib/callbacks';
 import { availabilityErrors } from '../../../lib/videoConference/constants';
-import { readSecondaryPreferred } from '../readSecondaryPreferred';
+import { readSecondaryPreferred } from '../../database/readSecondaryPreferred';
 import { i18n } from '../../lib/i18n';
 import { isRoomCompatibleWithVideoConfRinging } from '../../lib/isRoomCompatibleWithVideoConfRinging';
 import { roomCoordinator } from '../../lib/rooms/roomCoordinator';

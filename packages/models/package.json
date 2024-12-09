@@ -5,12 +5,15 @@
 	"devDependencies": {
 		"@rocket.chat/jest-presets": "workspace:~",
 		"@types/jest": "~29.5.14",
+		"@types/node-rsa": "^1.1.4",
 		"eslint": "~8.45.0",
 		"jest": "^29.7.0",
 		"typescript": "~5.7.2"
 	},
 	"dependencies": {
-		"@rocket.chat/model-typings": "workspace:~"
+		"@rocket.chat/model-typings": "workspace:~",
+		"@rocket.chat/rest-typings": "workspace:^",
+		"node-rsa": "^1.1.1"
 	},
 	"scripts": {
 		"build": "rm -rf dist && tsc",
