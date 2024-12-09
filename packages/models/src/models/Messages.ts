@@ -30,7 +30,6 @@ import type {
 } from 'mongodb';
 
 import { BaseRaw } from './BaseRaw';
-import { otrSystemMessages } from '../../../app/otr/lib/constants';
 import { readSecondaryPreferred } from '../readSecondaryPreferred';
 
 type DeepWritable<T> = T extends (...args: any) => any
@@ -695,16 +694,11 @@ export class MessagesRaw extends BaseRaw<IMessage> implements IMessagesModel {
 		return this.updateOne({ _id: messageId }, { $unset: { reactions: 1 } });
 	}
 
-	deleteOldOTRMessages(roomId: string, ts: Date): Promise<DeleteResult> {
+	deleteOldOTRMessages(roomId: string, ts: Date, types: IMessage['t'][]): Promise<DeleteResult> {
 		const query: Filter<IMessage> = {
 			rid: roomId,
 			t: {
-				$in: [
-					'otr',
-					otrSystemMessages.USER_JOINED_OTR,
-					otrSystemMessages.USER_REQUESTED_OTR_KEY_REFRESH,
-					otrSystemMessages.USER_KEY_REFRESHED_SUCCESSFULLY,
-				],
+				$in: ['otr', ...types],
 			},
 			ts: { $lte: ts },
 		};
