@@ -1,5 +1,7 @@
 import { LivechatRooms, Messages } from '@rocket.chat/models';
 
+import { settings } from '../../../../settings/server';
+
 type Params = {
 	start: Date;
 	end: Date;
@@ -155,11 +157,20 @@ export const findPercentageOfAbandonedRoomsAsync = async ({ start, end, departme
 			start,
 			end,
 			departmentId,
+			inactivityTimeout: settings.get('Livechat_visitor_inactivity_timeout'),
 			onlyCount: true,
 		})
 	).toArray();
 	return {
-		departments: await (await LivechatRooms.findPercentageOfAbandonedRooms({ start, end, departmentId, options })).toArray(),
+		departments: await (
+			await LivechatRooms.findPercentageOfAbandonedRooms({
+				start,
+				end,
+				departmentId,
+				inactivityTimeout: settings.get('Livechat_visitor_inactivity_timeout'),
+				options,
+			})
+		).toArray(),
 		total: total.length ? total[0].total : 0,
 	};
 };
