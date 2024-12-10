@@ -219,15 +219,15 @@ export class LivechatRoomsRaw extends BaseRaw<IOmnichannelRoom> implements ILive
 		start,
 		end,
 		departmentId,
-		onlyCount = false,
 		timeout,
+		onlyCount = false,
 		options = {},
 	}: {
 		start: Date;
 		end: Date;
+		timeout: number;
 		departmentId?: string;
 		onlyCount?: boolean;
-		timeout?: number;
 		options?: { offset?: number; count?: number; sort?: { [k: string]: number } };
 	}) {
 		const match: Document = {

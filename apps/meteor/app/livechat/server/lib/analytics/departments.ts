@@ -141,9 +141,25 @@ export const findAllNumberOfAbandonedRoomsAsync = async ({ start, end, departmen
 	if (!start || !end) {
 		throw new Error('"start" and "end" must be provided');
 	}
-	const total = await (await LivechatRooms.findAllNumberOfAbandonedRooms({ start, end, departmentId, onlyCount: true })).toArray();
+	const total = await (
+		await LivechatRooms.findAllNumberOfAbandonedRooms({
+			start,
+			end,
+			departmentId,
+			timeout: settings.get('Livechat_visitor_inactivity_timeout'),
+			onlyCount: true,
+		})
+	).toArray();
 	return {
-		departments: await (await LivechatRooms.findAllNumberOfAbandonedRooms({ start, end, departmentId, options })).toArray(),
+		departments: await (
+			await LivechatRooms.findAllNumberOfAbandonedRooms({
+				start,
+				end,
+				departmentId,
+				timeout: settings.get('Livechat_visitor_inactivity_timeout'),
+				options,
+			})
+		).toArray(),
 		total: total.length ? total[0].total : 0,
 	};
 };
