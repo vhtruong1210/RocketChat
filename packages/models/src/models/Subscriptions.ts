@@ -9,7 +9,6 @@ import type {
 	SpotlightUser,
 } from '@rocket.chat/core-typings';
 import type { ISubscriptionsModel } from '@rocket.chat/model-typings';
-import { Rooms, Users } from '@rocket.chat/models';
 import { escapeRegExp } from '@rocket.chat/string-helpers';
 import { compact } from 'lodash';
 import mem from 'mem';
@@ -33,8 +32,9 @@ import type {
 	ModifyResult,
 } from 'mongodb';
 
+import { Rooms, Users } from '..';
 import { BaseRaw } from './BaseRaw';
-import { getDefaultSubscriptionPref } from '../../../app/utils/lib/getDefaultSubscriptionPref';
+// import { getDefaultSubscriptionPref } from '../../../app/utils/lib/getDefaultSubscriptionPref';
 
 export class SubscriptionsRaw extends BaseRaw<ISubscription> implements ISubscriptionsModel {
 	constructor(db: Db, trash?: Collection<RocketChatRecordDeleted<ISubscription>>) {
@@ -1856,7 +1856,7 @@ export class SubscriptionsRaw extends BaseRaw<ISubscription> implements ISubscri
 				name: user.name,
 			},
 			...(room.prid && { prid: room.prid }),
-			...getDefaultSubscriptionPref(user),
+			// ...getDefaultSubscriptionPref(user),
 			...extraData,
 		};
 
@@ -1894,7 +1894,7 @@ export class SubscriptionsRaw extends BaseRaw<ISubscription> implements ISubscri
 				name: user.name,
 			},
 			...(room.prid && { prid: room.prid }),
-			...getDefaultSubscriptionPref(user),
+			// ...getDefaultSubscriptionPref(user),
 			...extraData,
 		}));
 

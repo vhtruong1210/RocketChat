@@ -29,7 +29,7 @@ export class NpsRaw extends BaseRaw<INps> implements INpsModel {
 		};
 		const value = await this.findOneAndUpdate(query, update, { sort: { expireAt: 1 } });
 
-		return value;
+		return value.value;
 	}
 
 	// get expired surveys already sending results

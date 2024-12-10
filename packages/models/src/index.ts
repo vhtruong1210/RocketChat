@@ -88,6 +88,7 @@ import type {
 	IModerationReportsModel,
 	IWorkspaceCredentialsModel,
 } from '@rocket.chat/model-typings';
+import type { Collection, Db } from 'mongodb';
 
 import {
 	TeamMemberRaw,
