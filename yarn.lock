@@ -9557,7 +9557,10 @@ __metadata:
   dependencies:
     "@rocket.chat/jest-presets": "workspace:~"
     "@rocket.chat/model-typings": "workspace:~"
+    "@rocket.chat/random": "workspace:^"
     "@rocket.chat/rest-typings": "workspace:^"
+    "@rocket.chat/sha256": "workspace:^"
+    "@rocket.chat/string-helpers": "npm:^0.31.25"
     "@rocket.chat/tracing": "workspace:^"
     "@types/jest": "npm:~29.5.14"
     "@types/node-rsa": "npm:^1.1.4"
@@ -10020,7 +10023,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rocket.chat/string-helpers@npm:~0.31.25":
+"@rocket.chat/string-helpers@npm:^0.31.25, @rocket.chat/string-helpers@npm:~0.31.25":
   version: 0.31.25
   resolution: "@rocket.chat/string-helpers@npm:0.31.25"
   checksum: 10/9fd3f25a9e87a6c33bea1fb521c51e7e6497ad5f9b695807b8b0b98b3130799924305adaa1ea851f10ed2ffc64af8270f3f14339ac181f64b038cb1fd8f8819f
