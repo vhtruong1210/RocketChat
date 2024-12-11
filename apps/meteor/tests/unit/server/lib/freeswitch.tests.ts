@@ -1,10 +1,13 @@
 import { expect } from 'chai';
 import { describe } from 'mocha';
+import proxyquire from 'proxyquire';
+import sinon from 'sinon';
 
-import { VoipFreeSwitchService } from '../../../../ee/server/local-services/voip-freeswitch/service';
+const { VoipFreeSwitchService } = proxyquire.noCallThru().load('../../../../ee/server/local-services/voip-freeswitch/service', {
+	'../../../../app/settings/server': { get: sinon.stub() },
+});
 
 const VoipFreeSwitch = new VoipFreeSwitchService();
-
 // Those tests still need a proper freeswitch environment configured in order to run
 // So for now they are being deliberately skipped on CI
 describe.skip('VoIP', () => {
