@@ -1,10 +1,9 @@
 import { expect } from 'chai';
 import { describe } from 'mocha';
 
-import { settings } from '../../../../app/settings/server/cached';
 import { VoipFreeSwitchService } from '../../../../ee/server/local-services/voip-freeswitch/service';
 
-const VoipFreeSwitch = new VoipFreeSwitchService((id) => settings.get(id));
+const VoipFreeSwitch = new VoipFreeSwitchService();
 
 // Those tests still need a proper freeswitch environment configured in order to run
 // So for now they are being deliberately skipped on CI
