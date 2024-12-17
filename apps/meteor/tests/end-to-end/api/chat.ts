@@ -9,7 +9,7 @@ import { getCredentials, api, request, credentials } from '../../data/api-data';
 import { sendSimpleMessage, deleteMessage } from '../../data/chat.helper';
 import { imgURL } from '../../data/interactions';
 import { updatePermission, updateSetting } from '../../data/permissions.helper';
-import { createRoom, deleteRoom } from '../../data/rooms.helper';
+import { createRoom, deleteRoom, getSubscriptionByRoomId } from '../../data/rooms.helper';
 import { password } from '../../data/user';
 import type { TestUser } from '../../data/users.helper';
 import { createUser, deleteUser, login } from '../../data/users.helper';
@@ -2004,6 +2004,50 @@ describe('[Chat]', () => {
 					expect(res.body).to.have.property('success', true);
 				})
 				.end(done);
+		});
+
+		describe('when deleting a thread message', () => {
+			let otherUser: TestUser<IUser>;
+			let otherUserCredentials: Credentials;
+			let parentThreadId: IMessage['_id'];
+
+			before(async () => {
+				otherUser = await createUser();
+				otherUserCredentials = await login(otherUser.username, password);
+				parentThreadId = (await sendSimpleMessage({ roomId: testChannel._id })).body.message._id;
+			});
+
+			after(() => Promise.all([deleteUser(otherUser), deleteMessage({ msgId: parentThreadId, roomId: testChannel._id })]));
+
+			it('should reset the unread counter if the message was removed', async () => {
+				const { body } = await sendSimpleMessage({ roomId: testChannel._id, tmid: parentThreadId, userCredentials: otherUserCredentials });
+				const msgId = body.message._id;
+				await request
+					.post(api('chat.delete'))
+					.set(credentials)
+					.send({
+						roomId: testChannel._id,
+						msgId,
+					})
+					.expect('Content-Type', 'application/json')
+					.expect(200)
+					.expect((res) => {
+						expect(res.body).to.have.property('success', true);
+					});
+
+				const [userWhoCreatedTheThreadSubscription, userWhoDeletedTheThreadSubscription] = await Promise.all([
+					getSubscriptionByRoomId(testChannel._id),
+					getSubscriptionByRoomId(testChannel._id, otherUserCredentials),
+				]);
+
+				expect(userWhoCreatedTheThreadSubscription).to.have.property('tunread');
+				expect(userWhoCreatedTheThreadSubscription.tunread).to.be.an('array');
+				expect(userWhoCreatedTheThreadSubscription.tunread).to.deep.equal([]);
+
+				// The user who deleted the thread should not have the thread marked as unread, since
+				// there was never a message in the thread that was not read by the user
+				expect(userWhoDeletedTheThreadSubscription).to.not.have.property('tunread');
+			});
 		});
 	});
 
